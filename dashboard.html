@@ -8,9 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="SIB-logo.png" type="image/png">
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="supabase-config.js" onerror="window.SIBELEC_SUPABASE={url:'',key:''}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js" defer></script>
+    <!-- Supabase chargé en defer pour ne pas bloquer le rendu -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
     <style>
         /* ============================================================
            VARIABLES
@@ -1890,6 +1890,7 @@
                     <!-- généré par JS -->
                 </select>
                 <select id="ca-filter-month" class="search-bar" style="width:auto;padding:0.5rem 0.75rem;" onchange="renderCompta()">
+
                     <option value="">Toute l'année</option>
                     <option value="1">Janvier</option><option value="2">Février</option>
                     <option value="3">Mars</option><option value="4">Avril</option>
@@ -1898,6 +1899,9 @@
                     <option value="9">Septembre</option><option value="10">Octobre</option>
                     <option value="11">Novembre</option><option value="12">Décembre</option>
                 </select>
+                <button class="btn btn-secondary" onclick="exportComptaCSV()" title="Télécharger un fichier Excel / CSV">
+                    <i class="fa-solid fa-file-csv"></i> Exporter CSV
+                </button>
             </div>
         </div>
 
@@ -2305,7 +2309,20 @@ let _pendingRappel = null;
 /* ============================================================
    BOOTSTRAP
 ============================================================ */
-document.addEventListener('DOMContentLoaded', async () => {
+// Attendre que TOUS les scripts defer soient chargés (window.load) avant d'initialiser
+window.addEventListener('load', async () => {
+    // Charger supabase-config.js dynamiquement si non encore chargé
+    if (!window.SIBELEC_SUPABASE) {
+        try {
+            await new Promise((res, rej) => {
+                const s = document.createElement('script');
+                s.src = 'supabase-config.js';
+                s.onload = res; s.onerror = res; // ne jamais bloquer
+                document.head.appendChild(s);
+            });
+        } catch(e) {}
+    }
+
     const sbOk = initSupabase();
     await initLogin(sbOk);
     loadInventory();
@@ -2317,9 +2334,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSignaturePad();
     updateAlertBadge();
     initComptaYears();
-    // Date par défaut pour les dépenses
     const depDate = document.getElementById('dep-date');
-    if (depDate) depDate.value = new Date().toISOString().slice(0,10);
+    if (depDate) depDate.value = new Date().toISOString().slice(0, 10);
 });
 
 /* ============================================================
@@ -3533,6 +3549,119 @@ function renderDepenses(list) {
 function fmtEur(n) {
     return Number(n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
 }
+
+/* ============================================================
+   EXPORT CSV COMPTABILITÉ
+============================================================ */
+function exportComptaCSV() {
+    const year  = parseInt(document.getElementById('ca-filter-year')?.value  || new Date().getFullYear());
+    const month = parseInt(document.getElementById('ca-filter-month')?.value || 0);
+
+    const BOM = '\uFEFF'; // UTF-8 BOM pour Excel français
+
+    /* ---- En-tête ---- */
+    const headers = ['Type','Date','N° Devis / Réf.','Client / Description','Catégorie','Montant HT (€)','TVA (%)','TVA (€)','Montant TTC (€)','Statut'];
+
+    /* ---- Lignes Recettes ---- */
+    const recettes = devisHistory.filter(d => {
+        if (!d.date_devis) return true;
+        const [y, m] = d.date_devis.split('-').map(Number);
+        if (y !== year) return false;
+        if (month && m !== month) return false;
+        return true;
+    }).map(d => {
+        const ht  = Number(d.montant_ht  || 0);
+        const ttc = Number(d.montant_ttc || 0);
+        const tva = ttc - ht;
+        return [
+            'RECETTE',
+            d.date_devis ? d.date_devis.split('-').reverse().join('/') : '',
+            d.num,
+            d.client_nom,
+            'Prestations',
+            csvNum(ht),
+            '',          // TVA % non stocké globalement sur la recette
+            csvNum(tva),
+            csvNum(ttc),
+            d.statut === 'accepte' ? 'Accepté' : d.statut === 'refuse' ? 'Refusé' : 'En attente'
+        ];
+    });
+
+    /* ---- Lignes Dépenses ---- */
+    const catLabels = {
+        'materiel':'Matériel','carburant':'Carburant / Déplacements','outillage':'Outillage',
+        'assurance':'Assurance','formation':'Formation','frais-bureau':'Frais de bureau',
+        'sous-traitance':'Sous-traitance','autre':'Autre'
+    };
+
+    const depenses = depensesDB.filter(d => {
+        if (!d.date) return true;
+        const [y, m] = d.date.split('-').map(Number);
+        if (y !== year) return false;
+        if (month && m !== month) return false;
+        return true;
+    }).map(d => {
+        const ht  = Number(d.montant || 0);
+        const tva = ht * (Number(d.tva_rate || 0) / 100);
+        return [
+            'DÉPENSE',
+            d.date ? d.date.split('-').reverse().join('/') : '',
+            '',
+            d.description,
+            catLabels[d.categorie] || d.categorie,
+            csvNum(ht),
+            d.tva_rate || 0,
+            csvNum(tva),
+            csvNum(ht + tva),
+            ''
+        ];
+    });
+
+    /* ---- Ligne totaux ---- */
+    const totalRecHT  = recettes.reduce((s, r) => s + parseCsvNum(r[5]), 0);
+    const totalRecTTC = recettes.reduce((s, r) => s + parseCsvNum(r[8]), 0);
+    const totalDepHT  = depenses.reduce((s, r) => s + parseCsvNum(r[5]), 0);
+    const totalDepTTC = depenses.reduce((s, r) => s + parseCsvNum(r[8]), 0);
+    const beneficeHT  = totalRecHT - totalDepHT;
+
+    const totaux = [
+        ['','','','','','','','','',''],
+        ['TOTAL RECETTES','','','','', csvNum(totalRecHT),'','',csvNum(totalRecTTC),''],
+        ['TOTAL DÉPENSES','','','','', csvNum(totalDepHT),'','',csvNum(totalDepTTC),''],
+        ['BÉNÉFICE NET HT','','','','', csvNum(beneficeHT),'','','',''],
+    ];
+
+    /* ---- Construction CSV ---- */
+    const allRows = [headers, ...recettes, ...depenses, ...totaux];
+    const csv = BOM + allRows.map(row =>
+        row.map(cell => {
+            const s = String(cell ?? '');
+            // Échapper les guillemets, encapsuler si virgule ou guillemet
+            return (s.includes(';') || s.includes('"') || s.includes('\n'))
+                ? '"' + s.replace(/"/g, '""') + '"'
+                : s;
+        }).join(';')
+    ).join('\r\n');
+
+    /* ---- Téléchargement ---- */
+    const monthStr = month ? `-${String(month).padStart(2,'0')}` : '';
+    const filename = `Compta-SIBElec-${year}${monthStr}.csv`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast(`CSV exporté : ${filename}`, 'success');
+}
+
+function csvNum(n)      { return String(Number(n||0).toFixed(2)).replace('.', ','); }
+function parseCsvNum(s) { return parseFloat(String(s).replace(',', '.')) || 0; }
 
 /* ============================================================
    RECHERCHE DEVIS / CLIENTS
