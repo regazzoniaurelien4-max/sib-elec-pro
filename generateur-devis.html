@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Devis — SIB.Elec</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* ============================================================
+           VARIABLES & RESET
+        ============================================================ */
+        :root {
+            --navy:        #1c1c1c;
+            --navy-dark:   #111111;
+            --slate:       #4a5568;
+            --slate-light: #718096;
+            --white:       #ffffff;
+            --bg:          #f4f4f4;
+            --bg-dark:     #e8e8e8;
+            --accent:      #d41f1f;
+            --accent-hov:  #b71c1c;
+            --accent-lt:   #fef2f2;
+            --border:      #dde3ec;
+            --red:         #ef4444;
+            --green:       #16a34a;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+
+            --radius:    10px;
+            --radius-sm: 6px;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { height: 100%; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--slate);
+            min-height: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================================
+           ADMIN HEADER
+        ============================================================ */
+        .admin-header {
+            background: var(--navy-dark);
+            padding: 0.9rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-logo {
+            display: flex; align-items: center; gap: 0.65rem;
+        }
+
+        .admin-logo-icon {
+            width: 36px; height: 36px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1rem;
+        }
+
+        .admin-logo-name {
+            font-size: 1rem; font-weight: 800;
+            color: white; line-height: 1.15;
+        }
+
+        .admin-logo-sub {
+            font-size: 0.65rem; font-weight: 500;
+            color: rgba(255,255,255,0.38);
+            letter-spacing: 0.1em;
+        }
+
+        .admin-badge {
+            display: flex; align-items: center; gap: 0.45rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.55);
+            font-size: 0.72rem; font-weight: 600;
+            padding: 0.35rem 0.85rem;
+            border-radius: 100px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .admin-badge i { color: #f59e0b; }
+
+        /* ============================================================
+           LAYOUT
+        ============================================================ */
+        .layout {
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            min-height: calc(100vh - 58px);
+        }
+
+        /* ----- FORM PANEL ----- */
+        .form-panel {
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            max-height: calc(100vh - 58px);
+            position: sticky; top: 58px;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-section:last-child { border-bottom: none; }
+
+        .form-section-title {
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--slate-light);
+            margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .form-section-title i { color: var(--accent); font-size: 0.8rem; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .form-row.full { grid-template-columns: 1fr; }
+
+        .field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+        .field label {
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--slate);
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--navy);
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.75rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212,31,31,0.12);
+            background: white;
+        }
+
+        .field textarea { resize: vertical; min-height: 70px; }
+
+        /* TVA Selector */
+        .tva-select {
+            display: flex; gap: 0.5rem; margin-top: 0.25rem;
+        }
+
+        .tva-btn {
+            flex: 1;
+            padding: 0.55rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            font-family: inherit;
+            font-size: 0.82rem; font-weight: 600;
+            color: var(--slate);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tva-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .tva-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Lines table inside form */
+        .lines-header {
+            display: grid;
+            grid-template-columns: 1fr 72px 90px 28px;
+            gap: 0.5rem;
+            padding: 0 0 0.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+        }
+
+        .lines-col-label {
+            font-size: 0.68rem; font-weight: 700;
+            color: var(--slate-light);
+            letter-spacing: 0.08em; text-transform: uppercase;
+        }
+
+        .line-row {
+            display: grid;
+            grid-template-columns: 1fr 72px 90px 28px;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid var(--bg-dark);
+        }
+
+        .line-row input {
+            font-family: inherit;
+            font-size: 0.82rem;
+            color: var(--navy);
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 0.55rem;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .line-row input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212,31,31,0.1);
+            background: white;
+        }
+
+        .line-row input[type="number"] { text-align: right; }
+
+        .btn-remove {
+            width: 28px; height: 28px;
+            border: none; border-radius: 6px;
+            background: none; cursor: pointer;
+            color: var(--slate-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover { background: #fee2e2; color: var(--red); }
+
+        /* Action buttons in form */
+        .btn-add {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            border: 1.5px dashed var(--border);
+            border-radius: var(--radius-sm);
+            background: none; cursor: pointer;
+            color: var(--accent);
+            font-family: inherit; font-size: 0.82rem; font-weight: 600;
+            width: 100%; justify-content: center;
+            margin-top: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover { border-color: var(--accent); background: var(--accent-lt); }
+
+        /* Totals in form panel */
+        .totals-box {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 1.1rem 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .total-row {
+            display: flex; justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            padding: 0.35rem 0;
+            color: var(--slate);
+        }
+
+        .total-row.bold {
+            font-size: 1rem; font-weight: 800;
+            color: var(--navy);
+            padding-top: 0.65rem;
+            margin-top: 0.35rem;
+            border-top: 2px solid var(--border);
+        }
+
+        /* Generate PDF button */
+        .btn-generate {
+            width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 0.65rem;
+            padding: 1rem;
+            background: var(--accent);
+            color: white;
+            border: none; border-radius: var(--radius);
+            font-family: inherit; font-size: 1rem; font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 14px rgba(212,31,31,0.35);
+            margin-top: 1rem;
+        }
+
+        .btn-generate:hover {
+            background: var(--accent-hov);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(212,31,31,0.45);
+        }
+
+        .btn-generate:active { transform: translateY(0); }
+
+        .btn-generate.loading { opacity: 0.75; cursor: wait; }
+
+        /* ----- PREVIEW PANEL ----- */
+        .preview-panel {
+            padding: 2.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-dark);
+        }
+
+        .preview-label {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--slate-light);
+            margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .preview-label::before,
+        .preview-label::after {
+            content: '';
+            flex: 1; height: 1px;
+            background: var(--border);
+        }
+
+        /* ============================================================
+           DEVIS DOCUMENT (PDF TARGET)
+        ============================================================ */
+        #devis-doc {
+            width: 794px; /* A4 at 96dpi */
+            min-height: 1123px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #2d3748;
+            font-size: 13px;
+        }
+
+        /* Document header band */
+        .doc-header {
+            background: linear-gradient(135deg, #0f1c2e 0%, #1a2e4a 100%);
+            padding: 36px 48px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .doc-company-logo {
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .doc-logo-icon {
+            width: 44px; height: 44px;
+            background: #d41f1f;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; color: white;
+        }
+
+        .doc-company-name {
+            font-size: 1.2rem; font-weight: 900;
+            color: white; line-height: 1.15;
+        }
+
+        .doc-company-tag {
+            font-size: 0.65rem; font-weight: 500;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.08em;
+        }
+
+        .doc-title-area { text-align: right; }
+
+        .doc-type {
+            font-size: 2rem; font-weight: 900;
+            color: white; letter-spacing: 0.04em;
+            line-height: 1;
+        }
+
+        .doc-num {
+            font-size: 0.9rem; font-weight: 600;
+            color: rgba(255,255,255,0.55);
+            margin-top: 4px;
+        }
+
+        .doc-date-display {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.42);
+            margin-top: 2px;
+        }
+
+        /* Company info band */
+        .doc-info-band {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 48px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .doc-party-label {
+            font-size: 0.62rem; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: #a0aec0;
+            margin-bottom: 6px;
+        }
+
+        .doc-party-name {
+            font-size: 0.95rem; font-weight: 700;
+            color: #1a2e4a;
+            margin-bottom: 2px;
+        }
+
+        .doc-party-line {
+            font-size: 0.82rem;
+            color: #718096;
+            line-height: 1.55;
+        }
+
+        /* Document body */
+        .doc-body { padding: 32px 48px; }
+
+        .doc-object {
+            background: #eff6ff;
+            border-left: 3px solid #d41f1f;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 24px;
+            font-size: 0.82rem;
+        }
+
+        .doc-object strong { color: #1a2e4a; font-weight: 700; }
+
+        /* Items table */
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .doc-table thead tr {
+            background: #1a2e4a;
+            color: white;
+        }
+
+        .doc-table thead th {
+            padding: 10px 12px;
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            text-align: left;
+        }
+
+        .doc-table thead th:last-child,
+        .doc-table thead th:nth-child(3),
+        .doc-table thead th:nth-child(4) { text-align: right; }
+
+        .doc-table tbody tr { border-bottom: 1px solid #f0f4f8; }
+
+        .doc-table tbody tr:nth-child(even) { background: #f8fafc; }
+
+        .doc-table tbody td {
+            padding: 10px 12px;
+            font-size: 0.84rem;
+            color: #4a5568;
+            vertical-align: top;
+        }
+
+        .doc-table tbody td:last-child,
+        .doc-table tbody td:nth-child(3),
+        .doc-table tbody td:nth-child(4) { text-align: right; }
+
+        .doc-table tbody td:first-child { color: #1a2e4a; font-weight: 500; }
+
+        .doc-table tfoot td {
+            padding: 8px 12px;
+            font-size: 0.84rem;
+        }
+
+        .doc-table tfoot tr { border-top: 2px solid #e2e8f0; }
+
+        /* Totals */
+        .doc-totals {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-bottom: 32px;
+        }
+
+        .doc-totals-inner {
+            width: 280px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .doc-total-row {
+            display: flex; justify-content: space-between;
+            padding: 9px 16px;
+            font-size: 0.84rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .doc-total-row:last-child { border-bottom: none; }
+
+        .doc-total-row.ttc {
+            background: #1a2e4a;
+            color: white;
+            font-size: 1rem; font-weight: 800;
+        }
+
+        .doc-total-row .label { color: #718096; }
+        .doc-total-row.ttc .label { color: rgba(255,255,255,0.65); }
+
+        .doc-total-row .value { font-weight: 600; color: #1a2e4a; }
+        .doc-total-row.ttc .value { color: white; }
+
+        /* Footer zone of the document */
+        .doc-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 24px 48px 32px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .doc-footer-label {
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: #a0aec0; margin-bottom: 6px;
+        }
+
+        .doc-footer-content {
+            font-size: 0.8rem; color: #718096; line-height: 1.65;
+        }
+
+        .doc-sign-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            height: 90px;
+            display: flex; align-items: flex-end;
+            padding: 8px 12px;
+            margin-top: 8px;
+        }
+
+        .doc-sign-label {
+            font-size: 0.72rem; color: #a0aec0;
+        }
+
+        .doc-stamp {
+            text-align: center;
+            margin-top: 24px;
+            padding: 0 48px;
+        }
+
+        .doc-stamp p {
+            font-size: 0.72rem;
+            color: #a0aec0;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           LOADING OVERLAY
+        ============================================================ */
+        #loading-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15,28,46,0.65);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 1rem;
+        }
+
+        #loading-overlay.show { display: flex; }
+
+        .loading-spinner {
+            width: 48px; height: 48px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text { color: white; font-size: 1rem; font-weight: 600; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ============================================================
+           RESPONSIVE NOTE
+        ============================================================ */
+        @media (max-width: 1200px) {
+            .layout { grid-template-columns: 400px 1fr; }
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .form-panel { position: static; max-height: none; }
+            #devis-doc { width: 100%; min-height: auto; }
+            .doc-header, .doc-info-band, .doc-body, .doc-footer { padding-left: 24px; padding-right: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     LOADING OVERLAY
+================================================================ -->
+<div id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Génération du PDF en cours…</div>
+</div>
+
+<!-- ================================================================
+     ADMIN HEADER
+================================================================ -->
+<div class="admin-header">
+    <div class="admin-logo">
+        <div class="admin-logo-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+            <div class="admin-logo-name">SIB.Elec</div>
+            <div class="admin-logo-sub">Générateur de Devis</div>
+        </div>
+    </div>
+    <div class="admin-badge">
+        <i class="fa-solid fa-lock"></i> Espace privé
+    </div>
+</div>
+
+<!-- ================================================================
+     LAYOUT
+================================================================ -->
+<div class="layout">
+
+    <!-- ====================================================
+         FORM PANEL
+    ==================================================== -->
+    <div class="form-panel">
+
+        <!-- Meta du devis -->
+        <div class="form-section">
+            <div class="form-section-title"><i class="fa-solid fa-file-invoice"></i> Informations du devis</div>
+            <div class="form-row" style="margin-bottom:0.75rem;">
+                <div class="field">
+                    <label for="devis-num">N° de devis</label>
+                    <input type="text" id="devis-num" value="2024-001" placeholder="ex: 2024-001">
+                </div>
+                <div class="field">
+                    <label for="devis-date">Date</label>
+                    <input type="date" id="devis-date">
+                </div>
+            </div>
+            <div class="form-row full">
+                <div class="field">
+                    <label for="devis-objet">Objet / Description courte du chantier</label>
+                    <input type="text" id="devis-objet" placeholder="ex: Mise aux normes tableau électrique + domotique">
+                </div>
+            </div>
+        </div>
+
+        <!-- Client -->
+        <div class="form-section">
+            <div class="form-section-title"><i class="fa-solid fa-user"></i> Informations client</div>
+            <div class="form-row full" style="margin-bottom:0.75rem;">
+                <div class="field">
+                    <label for="client-nom">Nom / Raison sociale</label>
+                    <input type="text" id="client-nom" placeholder="Jean Dupont ou SCI Les Lilas">
+                </div>
+            </div>
+            <div class="form-row full" style="margin-bottom:0.75rem;">
+                <div class="field">
+                    <label for="client-adresse">Adresse des travaux</label>
+                    <textarea id="client-adresse" rows="2" placeholder="12 rue des Roses, 75001 Paris"></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label for="client-tel">Téléphone</label>
+                    <input type="tel" id="client-tel" placeholder="06 12 34 56 78">
+                </div>
+                <div class="field">
+                    <label for="client-email">Email</label>
+                    <input type="email" id="client-email" placeholder="jean@exemple.fr">
+                </div>
+            </div>
+        </div>
+
+        <!-- TVA -->
+        <div class="form-section">
+            <div class="form-section-title"><i class="fa-solid fa-percent"></i> Taux de TVA applicable</div>
+            <div class="tva-select">
+                <button class="tva-btn active" data-rate="0.20">20 % — Standard</button>
+                <button class="tva-btn" data-rate="0.10">10 % — Rénovation</button>
+                <button class="tva-btn" data-rate="0.055">5,5 % — Énergie</button>
+            </div>
+        </div>
+
+        <!-- Lignes de devis -->
+        <div class="form-section">
+            <div class="form-section-title"><i class="fa-solid fa-list-check"></i> Prestations</div>
+
+            <div class="lines-header">
+                <div class="lines-col-label">Description</div>
+                <div class="lines-col-label" style="text-align:right;">Qté</div>
+                <div class="lines-col-label" style="text-align:right;">Prix U. HT (€)</div>
+                <div></div>
+            </div>
+
+            <div id="lines-container"></div>
+
+            <button class="btn-add" id="btn-add">
+                <i class="fa-solid fa-plus"></i> Ajouter une prestation
+            </button>
+        </div>
+
+        <!-- Notes & Conditions -->
+        <div class="form-section">
+            <div class="form-section-title"><i class="fa-solid fa-note-sticky"></i> Notes &amp; Conditions</div>
+            <div class="field">
+                <label for="notes">Conditions particulières, remarques</label>
+                <textarea id="notes" rows="3" placeholder="Acompte de 30% à la commande. Délai d'intervention : 3 semaines. Validité du devis : 30 jours."></textarea>
+            </div>
+        </div>
+
+        <!-- Totaux + bouton générer -->
+        <div class="form-section">
+            <div class="form-section-title"><i class="fa-solid fa-calculator"></i> Récapitulatif</div>
+
+            <div class="totals-box">
+                <div class="total-row">
+                    <span>Sous-total HT</span>
+                    <span id="sum-ht">0,00 €</span>
+                </div>
+                <div class="total-row">
+                    <span id="tva-label">TVA (20%)</span>
+                    <span id="sum-tva">0,00 €</span>
+                </div>
+                <div class="total-row bold">
+                    <span>Total TTC</span>
+                    <span id="sum-ttc">0,00 €</span>
+                </div>
+            </div>
+
+            <button class="btn-generate" id="btn-generate">
+                <i class="fa-solid fa-file-pdf"></i> Générer le devis en PDF
+            </button>
+        </div>
+
+    </div><!-- /form-panel -->
+
+
+    <!-- ====================================================
+         PREVIEW PANEL
+    ==================================================== -->
+    <div class="preview-panel">
+        <div class="preview-label" style="width:100%;">Aperçu du document</div>
+
+        <!-- ================================================
+             DEVIS DOCUMENT — cible du PDF
+        ================================================ -->
+        <div id="devis-doc">
+
+            <!-- En-tête du document -->
+            <div class="doc-header">
+                <div class="doc-company-logo">
+                    <div class="doc-logo-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <div class="doc-company-name">SIB.Elec</div>
+                        <div class="doc-company-tag">Électricité &amp; Rénovation</div>
+                    </div>
+                </div>
+                <div class="doc-title-area">
+                    <div class="doc-type">DEVIS</div>
+                    <div class="doc-num" id="preview-num">N° 2024-001</div>
+                    <div class="doc-date-display" id="preview-date">Date : —</div>
+                </div>
+            </div>
+
+            <!-- Informations artisan / client -->
+            <div class="doc-info-band">
+                <div>
+                    <div class="doc-party-label">Artisan</div>
+                    <div class="doc-party-name">SIB.Elec</div>
+                    <div class="doc-party-line">
+                        David SIBOUT<br>
+                        613 Chemin du Rondel — 14100 FIRFOL<br>
+                        Tél : 06 69 76 22 04<br>
+                        siboutrenov@gmail.com
+                    </div>
+                </div>
+                <div>
+                    <div class="doc-party-label">Client</div>
+                    <div class="doc-party-name" id="preview-client-nom">—</div>
+                    <div class="doc-party-line" id="preview-client-info">—</div>
+                </div>
+            </div>
+
+            <!-- Corps du document -->
+            <div class="doc-body">
+
+                <!-- Objet -->
+                <div class="doc-object" id="preview-objet" style="display:none;">
+                    <strong>Objet : </strong><span id="preview-objet-text"></span>
+                </div>
+
+                <!-- Table des prestations -->
+                <table class="doc-table">
+                    <thead>
+                        <tr>
+                            <th style="width:45%">Désignation</th>
+                            <th style="width:10%;text-align:right;">Qté</th>
+                            <th style="width:18%;text-align:right;">Prix U. HT</th>
+                            <th style="width:17%;text-align:right;">Montant HT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-lines">
+                        <tr>
+                            <td colspan="4" style="text-align:center;color:#a0aec0;padding:24px;">
+                                Ajoutez des prestations dans le formulaire à gauche
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Totaux -->
+                <div class="doc-totals">
+                    <div class="doc-totals-inner">
+                        <div class="doc-total-row">
+                            <span class="label">Sous-total HT</span>
+                            <span class="value" id="doc-ht">0,00 €</span>
+                        </div>
+                        <div class="doc-total-row">
+                            <span class="label" id="doc-tva-label">TVA (20 %)</span>
+                            <span class="value" id="doc-tva">0,00 €</span>
+                        </div>
+                        <div class="doc-total-row ttc">
+                            <span class="label">Total TTC</span>
+                            <span class="value" id="doc-ttc">0,00 €</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /doc-body -->
+
+            <!-- Pied de document : conditions + signatures -->
+            <div class="doc-footer">
+                <div>
+                    <div class="doc-footer-label">Conditions</div>
+                    <div class="doc-footer-content" id="preview-notes">
+                        Acompte de 30% à la commande.<br>
+                        Solde à réception des travaux.<br>
+                        Validité du devis : 30 jours.
+                    </div>
+                </div>
+                <div>
+                    <div class="doc-footer-label">Bon pour accord — Signature client</div>
+                    <div class="doc-sign-box">
+                        <div class="doc-sign-label">Date et signature précédées de « Bon pour accord »</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mention légale bas de page -->
+            <div class="doc-stamp">
+                <p>
+                    SIB.Elec — David SIBOUT — 613 Chemin du Rondel, 14100 FIRFOL — siboutrenov@gmail.com<br>
+                    Électricité · Automatisme · Plaquiste · Enduiseur — Assurance décennale
+                </p>
+            </div>
+
+        </div><!-- /devis-doc -->
+
+    </div><!-- /preview-panel -->
+
+</div><!-- /layout -->
+
+
+<script>
+    /* ================================================================
+       STATE
+    ================================================================ */
+    let lines   = [];
+    let tvaRate = 0.20;
+    let lineId  = 0;
+
+    /* ================================================================
+       INIT
+    ================================================================ */
+    function init() {
+        // Set today's date
+        const today = new Date();
+        const yyyy  = today.getFullYear();
+        const mm    = String(today.getMonth() + 1).padStart(2, '0');
+        const dd    = String(today.getDate()).padStart(2, '0');
+        document.getElementById('devis-date').value = `${yyyy}-${mm}-${dd}`;
+
+        // Auto-generate devis number: DR-YYYYMM-001
+        const num = `DR-${yyyy}${mm}-001`;
+        document.getElementById('devis-num').value = num;
+
+        // Add 2 blank lines to start
+        addLine();
+        addLine();
+
+        // Listen for field changes → update preview
+        bindLiveUpdate();
+        updatePreview();
+    }
+
+    /* ================================================================
+       BIND LIVE UPDATE — toutes les saisies déclenchent updatePreview
+    ================================================================ */
+    function bindLiveUpdate() {
+        const ids = ['devis-num','devis-date','devis-objet',
+                     'client-nom','client-adresse','client-tel','client-email','notes'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updatePreview);
+        });
+    }
+
+    /* ================================================================
+       TVA BUTTONS
+    ================================================================ */
+    document.querySelectorAll('.tva-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tva-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tvaRate = parseFloat(btn.dataset.rate);
+            updatePreview();
+        });
+    });
+
+    /* ================================================================
+       LINES MANAGEMENT
+    ================================================================ */
+    document.getElementById('btn-add').addEventListener('click', addLine);
+
+    function addLine() {
+        const id = ++lineId;
+        lines.push({ id, desc: '', qty: 1, pu: 0 });
+        renderLines();
+    }
+
+    function removeLine(id) {
+        lines = lines.filter(l => l.id !== id);
+        renderLines();
+        updatePreview();
+    }
+
+    function renderLines() {
+        const container = document.getElementById('lines-container');
+        container.innerHTML = '';
+
+        lines.forEach(line => {
+            const row = document.createElement('div');
+            row.className = 'line-row';
+            row.dataset.id = line.id;
+
+            row.innerHTML = `
+                <input type="text"   class="line-desc" placeholder="Description de la prestation" value="${escHtml(line.desc)}">
+                <input type="number" class="line-qty"  placeholder="1" value="${line.qty}" min="0" step="0.01">
+                <input type="number" class="line-pu"   placeholder="0,00" value="${line.pu}" min="0" step="0.01">
+                <button class="btn-remove" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+            `;
+
+            // Events
+            row.querySelector('.line-desc').addEventListener('input', e => {
+                line.desc = e.target.value;
+                updatePreview();
+            });
+            row.querySelector('.line-qty').addEventListener('input', e => {
+                line.qty = parseFloat(e.target.value) || 0;
+                updatePreview();
+            });
+            row.querySelector('.line-pu').addEventListener('input', e => {
+                line.pu = parseFloat(e.target.value) || 0;
+                updatePreview();
+            });
+            row.querySelector('.btn-remove').addEventListener('click', () => removeLine(line.id));
+
+            container.appendChild(row);
+        });
+    }
+
+    /* ================================================================
+       CALCULATIONS
+    ================================================================ */
+    function calcTotals() {
+        const ht  = lines.reduce((sum, l) => sum + (l.qty * l.pu), 0);
+        const tva = ht * tvaRate;
+        const ttc = ht + tva;
+        return { ht, tva, ttc };
+    }
+
+    function fmt(n) {
+        return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    /* ================================================================
+       UPDATE PREVIEW
+    ================================================================ */
+    function updatePreview() {
+        const { ht, tva, ttc } = calcTotals();
+
+        // --- FORM panel totals ---
+        const pct = Math.round(tvaRate * 100);
+        document.getElementById('tva-label').textContent = `TVA (${pct}%)`;
+        document.getElementById('sum-ht').textContent  = fmt(ht);
+        document.getElementById('sum-tva').textContent = fmt(tva);
+        document.getElementById('sum-ttc').textContent = fmt(ttc);
+
+        // --- DEVIS DOC ---
+
+        // Header
+        const numVal  = document.getElementById('devis-num').value.trim()  || '—';
+        const dateVal = document.getElementById('devis-date').value;
+        document.getElementById('preview-num').textContent  = `N° ${numVal}`;
+        document.getElementById('preview-date').textContent = `Date : ${dateVal ? formatDate(dateVal) : '—'}`;
+
+        // Client
+        const clientNom = document.getElementById('client-nom').value.trim();
+        const clientAdr = document.getElementById('client-adresse').value.trim();
+        const clientTel = document.getElementById('client-tel').value.trim();
+        const clientMail= document.getElementById('client-email').value.trim();
+
+        document.getElementById('preview-client-nom').textContent = clientNom || '—';
+
+        let clientInfoHtml = '';
+        if (clientAdr)  clientInfoHtml += escHtml(clientAdr).replace(/\n/g, '<br>') + '<br>';
+        if (clientTel)  clientInfoHtml += `Tél : ${escHtml(clientTel)}<br>`;
+        if (clientMail) clientInfoHtml += escHtml(clientMail);
+        document.getElementById('preview-client-info').innerHTML = clientInfoHtml || '—';
+
+        // Objet
+        const objetVal = document.getElementById('devis-objet').value.trim();
+        const objetEl  = document.getElementById('preview-objet');
+        if (objetVal) {
+            document.getElementById('preview-objet-text').textContent = objetVal;
+            objetEl.style.display = 'block';
+        } else {
+            objetEl.style.display = 'none';
+        }
+
+        // Lines table
+        const tbody = document.getElementById('preview-lines');
+        if (lines.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#a0aec0;padding:24px;">Ajoutez des prestations dans le formulaire à gauche</td></tr>';
+        } else {
+            tbody.innerHTML = lines.map((l, idx) => {
+                const montant = l.qty * l.pu;
+                const rowBg   = idx % 2 === 1 ? 'style="background:#f8fafc;"' : '';
+                return `
+                <tr ${rowBg}>
+                    <td>${escHtml(l.desc) || '<span style="color:#a0aec0;">—</span>'}</td>
+                    <td style="text-align:right;">${formatNum(l.qty)}</td>
+                    <td style="text-align:right;">${fmt(l.pu)}</td>
+                    <td style="text-align:right;font-weight:600;color:#1a2e4a;">${fmt(montant)}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Totals in doc
+        const tvaLabel = `TVA (${Math.round(tvaRate * 100)} %)`;
+        document.getElementById('doc-tva-label').textContent = tvaLabel;
+        document.getElementById('doc-ht').textContent  = fmt(ht);
+        document.getElementById('doc-tva').textContent = fmt(tva);
+        document.getElementById('doc-ttc').textContent = fmt(ttc);
+
+        // Notes
+        const notesVal = document.getElementById('notes').value.trim();
+        const notesEl  = document.getElementById('preview-notes');
+        if (notesVal) {
+            notesEl.innerHTML = escHtml(notesVal).replace(/\n/g, '<br>');
+        } else {
+            notesEl.innerHTML = 'Acompte de 30% à la commande.<br>Solde à réception des travaux.<br>Validité du devis : 30 jours.';
+        }
+    }
+
+    /* ================================================================
+       GENERATE PDF
+    ================================================================ */
+    document.getElementById('btn-generate').addEventListener('click', async () => {
+        updatePreview();
+
+        const clientNom  = document.getElementById('client-nom').value.trim() || 'Client';
+        const devisNum   = document.getElementById('devis-num').value.trim()  || 'devis';
+        const filename   = `Devis_${devisNum}_${clientNom.replace(/\s+/g, '_')}.pdf`;
+
+        const el      = document.getElementById('devis-doc');
+        const overlay = document.getElementById('loading-overlay');
+        const btn     = document.getElementById('btn-generate');
+
+        overlay.classList.add('show');
+        btn.classList.add('loading');
+
+        // Small delay to let the UI update
+        await new Promise(r => setTimeout(r, 80));
+
+        const opt = {
+            margin:     [8, 8, 8, 8],
+            filename:   filename,
+            image:      { type: 'jpeg', quality: 0.97 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                letterRendering: true
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            await html2pdf().set(opt).from(el).save();
+        } catch(e) {
+            alert('Une erreur est survenue lors de la génération du PDF. Vérifiez votre connexion internet.');
+            console.error(e);
+        } finally {
+            overlay.classList.remove('show');
+            btn.classList.remove('loading');
+        }
+    });
+
+    /* ================================================================
+       HELPERS
+    ================================================================ */
+    function formatDate(isoDate) {
+        const [y, m, d] = isoDate.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    function formatNum(n) {
+        if (Number.isInteger(n)) return n;
+        return n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    /* ================================================================
+       START
+    ================================================================ */
+    init();
+</script>
+</body>
+</html>

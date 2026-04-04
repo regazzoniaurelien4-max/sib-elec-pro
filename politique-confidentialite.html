@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Politique de confidentialité de SIB.ELEC — Comment nous protégeons vos données personnelles.">
+    <title>Politique de confidentialité | SIB.ELEC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="SIB-logo.png" type="image/png">
+    <style>
+        :root {
+            --navy:         #1c1c1c;
+            --navy-dark:    #111111;
+            --slate:        #4a5568;
+            --slate-light:  #718096;
+            --white:        #ffffff;
+            --bg-light:     #f8fafc;
+            --border:       #e2e8f0;
+            --accent:       #d41f1f;
+            --accent-light: #fef2f2;
+            --green:        #16a34a;
+            --green-light:  #f0fdf4;
+            --radius:       12px;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: var(--slate);
+            background: var(--bg-light);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #0f1c2e 0%, #1a2e4a 100%);
+            padding: 2rem 0 3.5rem;
+        }
+
+        .container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+
+        .logo-img { height: 46px; width: auto; border-radius: 7px; background: white; padding: 2px 5px; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: white; }
+
+        .page-header h1 {
+            color: white;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p { color: rgba(255,255,255,0.55); font-size: 0.9rem; }
+
+        .legal-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 3rem;
+            margin: -1.5rem auto 3rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+
+        /* Résumé visuel RGPD */
+        .rgpd-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rgpd-card {
+            background: var(--green-light);
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .rgpd-card i {
+            font-size: 1.5rem;
+            color: var(--green);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .rgpd-card strong {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.25rem;
+        }
+
+        .rgpd-card span {
+            font-size: 0.78rem;
+            color: #166534;
+        }
+
+        .legal-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .legal-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .legal-section h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .legal-section h2 i { color: var(--accent); font-size: 1rem; }
+
+        .legal-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin: 1.25rem 0 0.5rem;
+        }
+
+        .legal-section p,
+        .legal-section li {
+            font-size: 0.92rem;
+            color: var(--slate);
+            line-height: 1.8;
+            margin-bottom: 0.6rem;
+        }
+
+        .legal-section ul { padding-left: 1.25rem; }
+        .legal-section strong { color: var(--navy); }
+
+        .info-box {
+            background: var(--accent-light);
+            border-left: 3px solid var(--accent);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            font-size: 0.875rem;
+            color: var(--navy);
+            margin-top: 0.75rem;
+        }
+
+        .good-box {
+            background: var(--green-light);
+            border-left: 3px solid var(--green);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            font-size: 0.875rem;
+            color: #166534;
+            margin-top: 0.75rem;
+        }
+
+        /* Tableau droits */
+        .rights-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .rights-table th {
+            background: var(--navy);
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .rights-table th:first-child { border-radius: 8px 0 0 0; }
+        .rights-table th:last-child { border-radius: 0 8px 0 0; }
+
+        .rights-table td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--slate);
+            line-height: 1.55;
+        }
+
+        .rights-table tr:last-child td { border-bottom: none; }
+        .rights-table tr:nth-child(even) td { background: var(--bg-light); }
+
+        .page-footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.78rem;
+            color: var(--slate-light);
+        }
+
+        .page-footer a { color: var(--accent); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            .legal-content { padding: 1.75rem 1.25rem; }
+            .rgpd-summary { grid-template-columns: 1fr; }
+            .rights-table { font-size: 0.78rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <div class="container">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+            <img src="SIB-logo.png" alt="SIB.Elec" class="logo-img">
+            <a href="index.html" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i> Retour au site
+            </a>
+        </div>
+        <h1>Politique de confidentialité</h1>
+        <p>Comment SIB.Elec collecte, utilise et protège vos données personnelles — RGPD</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="legal-content">
+
+        <!-- Résumé visuel -->
+        <div class="rgpd-summary">
+            <div class="rgpd-card">
+                <i class="fa-solid fa-database"></i>
+                <strong>Données minimales</strong>
+                <span>Nous ne collectons que ce qui est strictement nécessaire</span>
+            </div>
+            <div class="rgpd-card">
+                <i class="fa-solid fa-share-nodes"></i>
+                <strong>Pas de revente</strong>
+                <span>Vos données ne sont jamais vendues ni partagées à des tiers commerciaux</span>
+            </div>
+            <div class="rgpd-card">
+                <i class="fa-solid fa-user-shield"></i>
+                <strong>Vos droits garantis</strong>
+                <span>Accès, rectification, suppression : sur simple demande par email</span>
+            </div>
+        </div>
+
+        <!-- 1. Responsable -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-id-card"></i> 1. Responsable du traitement</h2>
+            <p>Le responsable du traitement de vos données personnelles est :</p>
+            <p>
+                <strong>SIB.Elec</strong> — David SIBOUT<br>
+                613 Chemin du Rondel — 14100 FIRFOL<br>
+                <strong>Email :</strong> <a href="mailto:siboutrenov@gmail.com" style="color:var(--accent);">siboutrenov@gmail.com</a><br>
+                <strong>Téléphone :</strong> <a href="tel:+33669762204" style="color:var(--accent);">06 69 76 22 04</a>
+            </p>
+        </div>
+
+        <!-- 2. Données collectées -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-list-check"></i> 2. Données collectées et finalités</h2>
+
+            <h3>Via le formulaire de contact / demande de devis</h3>
+            <p>Lorsque vous nous envoyez une demande, nous collectons :</p>
+            <ul>
+                <li><strong>Prénom et nom</strong> — pour vous identifier</li>
+                <li><strong>Numéro de téléphone</strong> — pour vous rappeler</li>
+                <li><strong>Adresse e-mail</strong> (optionnel) — pour vous envoyer le devis</li>
+                <li><strong>Description de votre projet</strong> — pour préparer l'intervention</li>
+            </ul>
+            <p style="margin-top:0.75rem;"><strong>Base légale :</strong> intérêt légitime (traitement d'une demande commerciale) et, le cas échéant, exécution d'un contrat.</p>
+
+            <h3>Via le générateur de devis en ligne</h3>
+            <p>Le générateur de devis fonctionne entièrement dans votre navigateur. Aucune donnée n'est transmise à nos serveurs. Le document généré reste sur votre appareil.</p>
+
+            <div class="good-box">
+                <i class="fa-solid fa-circle-check" style="margin-right:0.4rem;"></i>
+                Ce site ne dispose d'<strong>aucun formulaire avec stockage en base de données</strong>. Les demandes de contact sont transmises directement par votre client mail (mailto:), sans intermédiaire serveur.
+            </div>
+        </div>
+
+        <!-- 3. Durée de conservation -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-clock"></i> 3. Durée de conservation</h2>
+            <p>Vos données sont conservées dans notre boîte mail pour la durée nécessaire au traitement de votre demande et à l'éventuelle relation commerciale, soit :</p>
+            <ul>
+                <li><strong>Prospects (sans suite) :</strong> 3 ans à compter du dernier contact</li>
+                <li><strong>Clients (contrat signé) :</strong> 10 ans (obligations comptables et garantie décennale)</li>
+            </ul>
+            <p style="margin-top:0.75rem;">Au-delà de ces délais, vos données sont supprimées.</p>
+        </div>
+
+        <!-- 4. Services tiers -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-puzzle-piece"></i> 4. Services tiers et transferts</h2>
+            <p>Ce site fait appel à des services externes pour son fonctionnement :</p>
+
+            <table class="rights-table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Finalité</th>
+                        <th>Pays</th>
+                        <th>Politique</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Google Fonts</strong></td>
+                        <td>Chargement des polices de caractères</td>
+                        <td>USA</td>
+                        <td>RGPD-conforme</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Font Awesome CDN</strong></td>
+                        <td>Bibliothèque d'icônes</td>
+                        <td>USA</td>
+                        <td>RGPD-conforme</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WhatsApp</strong></td>
+                        <td>Messagerie directe (lien externe)</td>
+                        <td>USA</td>
+                        <td>Meta Privacy Policy</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box" style="margin-top:1rem;">
+                Ce site n'utilise <strong>aucun outil de tracking publicitaire</strong> (Google Analytics, Meta Pixel, Hotjar, etc.). Aucun profil publicitaire n'est créé à partir de votre navigation.
+            </div>
+        </div>
+
+        <!-- 5. Vos droits -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-hand-raised"></i> 5. Vos droits (RGPD)</h2>
+            <p>Conformément au Règlement (UE) 2016/679 (RGPD) et à la loi Informatique et Libertés modifiée, vous disposez des droits suivants :</p>
+
+            <table class="rights-table" style="margin-top:1rem;">
+                <thead>
+                    <tr>
+                        <th>Droit</th>
+                        <th>Ce que cela signifie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Accès</strong></td>
+                        <td>Obtenir une copie de vos données que nous détenons</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rectification</strong></td>
+                        <td>Corriger des informations inexactes vous concernant</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Effacement</strong></td>
+                        <td>Demander la suppression de vos données ("droit à l'oubli")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Limitation</strong></td>
+                        <td>Suspendre le traitement en cas de contestation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Opposition</strong></td>
+                        <td>Vous opposer à un traitement basé sur notre intérêt légitime</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Portabilité</strong></td>
+                        <td>Recevoir vos données dans un format lisible par machine</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="margin-top:1rem;">Pour exercer ces droits, contactez-nous par email à <a href="mailto:siboutrenov@gmail.com" style="color:var(--accent);font-weight:600;">siboutrenov@gmail.com</a> en précisant votre demande. Nous nous engageons à y répondre dans un délai d'<strong>un mois maximum</strong>.</p>
+
+            <p style="margin-top:0.75rem;">Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la <strong>CNIL</strong> : <a href="https://www.cnil.fr" target="_blank" rel="noopener" style="color:var(--accent);">www.cnil.fr</a></p>
+        </div>
+
+        <!-- 6. Cookies -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-cookie-bite"></i> 6. Gestion des cookies</h2>
+            <p>Ce site utilise uniquement un <strong>cookie de préférence</strong> stocké dans votre navigateur (localStorage) pour mémoriser votre choix concernant les cookies. Ce cookie ne contient aucune donnée personnelle.</p>
+            <p style="margin-top:0.5rem;">Les services tiers (Google Fonts, Font Awesome) peuvent déposer leurs propres cookies selon leurs politiques respectives. Vous pouvez les bloquer depuis les paramètres de votre navigateur.</p>
+        </div>
+
+        <!-- 7. Sécurité -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-lock"></i> 7. Sécurité des données</h2>
+            <p>Nous mettons en œuvre des mesures techniques et organisationnelles adaptées pour protéger vos données contre tout accès non autorisé, modification, divulgation ou destruction. Les échanges par email sont chiffrés via les protocoles standard (TLS).</p>
+        </div>
+
+        <!-- 8. Mise à jour -->
+        <div class="legal-section">
+            <h2><i class="fa-solid fa-calendar-check"></i> 8. Mise à jour de cette politique</h2>
+            <p>Nous nous réservons le droit de modifier la présente politique de confidentialité à tout moment, notamment pour nous conformer aux évolutions légales ou techniques. La date de dernière mise à jour figure ci-dessous.</p>
+            <p><strong>Dernière mise à jour :</strong> Avril 2026</p>
+        </div>
+
+    </div>
+</div>
+
+<div class="page-footer">
+    <p>© 2026 SIB.ELEC — <a href="index.html">Retour au site</a> — <a href="mentions-legales.html">Mentions légales</a></p>
+</div>
+
+</body>
+</html>

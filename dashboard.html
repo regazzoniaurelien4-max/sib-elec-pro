@@ -1,0 +1,3987 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SIB.Elec — David SIBOUT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="SIB-logo.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js" onerror="window.SIBELEC_SUPABASE={url:'',key:''}"></script>
+    <style>
+        /* ============================================================
+           VARIABLES
+        ============================================================ */
+        :root {
+            --red:          #d41f1f;
+            --red-dark:     #b71c1c;
+            --red-light:    #fef2f2;
+            --dark:         #111111;
+            --dark-mid:     #1a1a1a;
+            --dark-light:   #242424;
+            --bg:           #f2f2f2;
+            --white:        #ffffff;
+            --border:       #e4e4e4;
+            --slate:        #4a5568;
+            --slate-light:  #718096;
+            --navy:         #1c1c1c;
+            --green:        #16a34a;
+            --green-light:  #f0fdf4;
+            --orange:       #d97706;
+            --orange-light: #fffbeb;
+            --danger:       #ef4444;
+            --danger-light: #fef2f2;
+            --shadow-sm:    0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md:    0 4px 14px rgba(0,0,0,0.10);
+            --shadow-lg:    0 12px 32px rgba(0,0,0,0.14);
+            --radius:       10px;
+            --radius-sm:    6px;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html, body { height: 100%; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--slate);
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ============================================================
+           SIDEBAR
+        ============================================================ */
+        .sidebar {
+            width: 252px;
+            min-height: 100vh;
+            background: var(--dark);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            padding: 1.4rem 1.25rem 1.1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .logo-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: var(--red);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .logo-name  { font-size: 1.1rem; font-weight: 900; color: white; line-height: 1; }
+        .logo-sub   { font-size: 0.68rem; color: rgba(255,255,255,0.38); font-weight: 500; margin-top: 1px; }
+
+        .priv-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(212,31,31,0.18);
+            color: #fca5a5;
+            border-radius: 4px;
+            padding: 0.22rem 0.65rem;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            padding: 1.1rem 0.75rem;
+            flex: 1;
+        }
+
+        .nav-section-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.22);
+            padding: 0 0.5rem;
+            margin: 0.9rem 0 0.35rem;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            width: 100%;
+            padding: 0.72rem 0.875rem;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.62);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s;
+            text-align: left;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover { background: rgba(255,255,255,0.07); color: white; }
+
+        .nav-btn.active {
+            background: var(--red);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-icon { width: 18px; text-align: center; font-size: 0.9rem; flex-shrink: 0; }
+
+        .nav-alert-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            border-radius: 20px;
+            padding: 0.1rem 0.55rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            display: none;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-alert-badge.visible { display: block; }
+
+        .sidebar-footer {
+            padding: 1rem 1.25rem 1.25rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .sidebar-contact {
+            font-size: 0.73rem;
+            color: rgba(255,255,255,0.3);
+            line-height: 1.75;
+        }
+
+        .sidebar-contact strong { color: rgba(255,255,255,0.5); }
+        .sidebar-contact a { color: rgba(255,255,255,0.38); text-decoration: none; }
+        .sidebar-contact a:hover { color: white; }
+
+        /* ============================================================
+           MAIN LAYOUT
+        ============================================================ */
+        .main { flex: 1; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; }
+
+        .main-header {
+            background: white;
+            padding: 1rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .main-title { font-size: 1.05rem; font-weight: 800; color: var(--navy); }
+        .main-subtitle { font-size: 0.76rem; color: var(--slate-light); margin-top: 1px; }
+
+        .main-body { padding: 1.5rem; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ============================================================
+           CARDS
+        ============================================================ */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.25rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .card-title i { color: var(--red); }
+        .card-body { padding: 1.4rem; }
+
+        /* ============================================================
+           FORMS
+        ============================================================ */
+        .form-grid   { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .form-grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .col-2 { grid-column: span 2; }
+        .col-3 { grid-column: span 3; }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.32rem; }
+
+        .form-group label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.6rem 0.875rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--navy);
+            background: #fafafa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(212,31,31,0.1);
+            background: white;
+        }
+
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        /* ============================================================
+           BUTTONS
+        ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1.1rem;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.18s;
+            white-space: nowrap;
+            text-decoration: none;
+            line-height: 1;
+        }
+
+        .btn-primary   { background: var(--red);    color: white;  border-color: var(--red); }
+        .btn-primary:hover { background: var(--red-dark); border-color: var(--red-dark); }
+
+        .btn-secondary { background: #f0f0f0; color: var(--slate); border-color: #e8e8e8; }
+        .btn-secondary:hover { background: #e8e8e8; }
+
+        .btn-success   { background: var(--green);  color: white; border-color: var(--green); }
+        .btn-success:hover { background: #15803d; border-color: #15803d; }
+
+        .btn-danger    { background: transparent; color: var(--danger); border-color: #fecaca; }
+        .btn-danger:hover { background: var(--danger-light); border-color: var(--danger); }
+
+        .btn-outline   { background: transparent; color: var(--red); border-color: var(--red); }
+        .btn-outline:hover { background: var(--red-light); }
+
+        .btn-sm  { padding: 0.38rem 0.75rem; font-size: 0.78rem; }
+        .btn-lg  { padding: 0.8rem 1.6rem;  font-size: 0.94rem; }
+        .btn-ico { width: 32px; height: 32px; padding: 0; justify-content: center; }
+
+        /* ============================================================
+           LOGIN MODAL
+        ============================================================ */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-box {
+            background: #1a1a1a;
+            border: 1px solid rgba(212,31,31,0.25);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 0 60px rgba(212,31,31,0.15), 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+            animation: loginIn 0.4s ease;
+        }
+
+        @keyframes loginIn {
+            from { opacity:0; transform: translateY(20px) scale(0.97); }
+            to   { opacity:1; transform: none; }
+        }
+
+        .login-logo {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 10px;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+
+        .login-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.35rem;
+        }
+
+        .login-sub {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 1.75rem;
+        }
+
+        .login-input-wrap {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .login-input-wrap i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.9rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 1.1rem;
+            letter-spacing: 0.25em;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(212,31,31,0.2);
+        }
+
+        .login-input.error {
+            border-color: var(--danger);
+            animation: shake 0.35s ease;
+        }
+
+        @keyframes shake {
+            0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)}
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .login-btn:hover { background: var(--red-dark); transform: translateY(-1px); }
+
+        .login-error {
+            font-size: 0.75rem;
+            color: #fca5a5;
+            margin-top: 0.75rem;
+            min-height: 1rem;
+        }
+
+        .login-hint {
+            font-size: 0.68rem;
+            color: rgba(255,255,255,0.18);
+            margin-top: 1.25rem;
+        }
+
+        .login-mode-sep {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1rem 0;
+            color: rgba(255,255,255,0.2);
+            font-size: 0.72rem;
+        }
+        .login-mode-sep::before, .login-mode-sep::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+        .login-field-label {
+            display: block;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.35rem;
+        }
+        .login-email-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .login-email-input:focus { border-color: var(--red); }
+        .login-supabase-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(62,207,142,0.15);
+            color: #3ecf8e;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Barre de recherche globale */
+        .search-bar-wrap {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+        .search-bar-wrap i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-light);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
+            color: var(--navy);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-bar:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(212,31,31,0.1);
+        }
+        .search-results-count {
+            font-size: 0.75rem;
+            color: var(--slate-light);
+            margin-top: 0.5rem;
+        }
+
+        /* Statut devis */
+        .statut-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .statut-pill.en-attente { background: var(--orange-light); color: var(--orange); }
+        .statut-pill.accepte    { background: var(--green-light);   color: var(--green); }
+        .statut-pill.refuse     { background: var(--danger-light);  color: var(--danger); }
+
+        /* Compta */
+        .ca-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+        .ca-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .ca-stat {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--border);
+        }
+        .ca-stat-val   { font-size: 1.6rem; font-weight: 900; color: var(--navy); line-height: 1; }
+        .ca-stat-label { font-size: 0.72rem; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-top: 4px; }
+        .ca-stat.accent .ca-stat-val { color: var(--red); }
+        .ca-stat.green  .ca-stat-val { color: var(--green); }
+
+        .depense-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .depense-row:last-child { border-bottom: none; }
+        .depense-cat {
+            background: var(--red-light);
+            color: var(--red);
+            border-radius: 4px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+        }
+        .sync-status.online  { background: var(--green-light); color: var(--green); }
+        .sync-status.offline { background: var(--orange-light); color: var(--orange); }
+        .sync-status.local   { background: #f1f5f9; color: var(--slate); }
+
+        /* ============================================================
+           DEVIS — NUMERO
+        ============================================================ */
+        .devis-num-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            background: var(--red-light);
+            border: 1.5px solid #fecaca;
+            border-radius: var(--radius-sm);
+            padding: 0.55rem 1rem;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--red);
+        }
+
+        /* ============================================================
+           LIGNES TABLE
+        ============================================================ */
+        .lignes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .lignes-table th {
+            background: #f6f6f6;
+            padding: 0.6rem 0.6rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--slate);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .lignes-table td {
+            padding: 0.4rem 0.4rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .lignes-table tbody tr:last-child td { border-bottom: none; }
+        .lignes-table tbody tr:hover td { background: #fafafa; }
+
+        .lignes-table input,
+        .lignes-table select {
+            padding: 0.42rem 0.55rem;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            width: 100%;
+            background: white;
+            transition: border-color 0.15s;
+        }
+
+        .lignes-table input:focus,
+        .lignes-table select:focus {
+            border-color: var(--red);
+            outline: none;
+        }
+
+        .th-desc  { min-width: 200px; }
+        .th-qty   { width: 72px; }
+        .th-unit  { width: 88px; }
+        .th-pu    { width: 115px; }
+        .th-tva   { width: 78px; }
+        .th-total { width: 110px; text-align: right !important; }
+        .th-del   { width: 38px; }
+
+        .td-total {
+            font-weight: 700;
+            color: var(--navy);
+            text-align: right;
+            padding-right: 0.75rem !important;
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+           TOTAUX
+        ============================================================ */
+        .totaux-box {
+            background: #f8f8f8;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 1.4rem;
+            min-width: 280px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.38rem 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .total-row:last-child { border-bottom: none; }
+
+        .total-row .t-label { color: var(--slate-light); }
+        .total-row .t-amount { font-weight: 600; color: var(--navy); }
+
+        .total-row.ttc {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: var(--navy);
+            border-top: 2px solid var(--navy);
+            margin-top: 0.35rem;
+            padding-top: 0.75rem;
+        }
+
+        /* ============================================================
+           INVENTAIRE — STATS
+        ============================================================ */
+        .inv-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.1rem 1.2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-val   { font-size: 1.9rem; font-weight: 900; color: var(--navy); line-height: 1; }
+        .stat-label { font-size: 0.74rem; color: var(--slate-light); margin-top: 0.3rem; }
+        .stat-box.s-ok .stat-val     { color: var(--green); }
+        .stat-box.s-alert .stat-val  { color: var(--orange); }
+        .stat-box.s-danger .stat-val { color: var(--danger); }
+
+        /* ============================================================
+           INVENTAIRE — TABLE
+        ============================================================ */
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .inv-table th {
+            background: #f6f6f6;
+            padding: 0.65rem 1rem;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .inv-table td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .inv-table tbody tr:last-child td { border-bottom: none; }
+        .inv-table tbody tr.r-alerte  td { background: var(--orange-light); }
+        .inv-table tbody tr.r-rupture td { background: var(--danger-light); }
+        .inv-table tbody tr:hover td { filter: brightness(0.975); }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-ok      { background: #dcfce7; color: #166534; }
+        .badge-alerte  { background: #fef3c7; color: #92400e; }
+        .badge-rupture { background: #fee2e2; color: #991b1b; }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-qty {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: white;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--slate);
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+
+        .btn-qty:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+        .qty-val {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--navy);
+            min-width: 36px;
+            text-align: center;
+        }
+
+        /* Searchbar */
+        .searchbar {
+            position: relative;
+        }
+
+        .searchbar i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-light);
+            font-size: 0.82rem;
+            pointer-events: none;
+        }
+
+        .searchbar input {
+            padding: 0.6rem 0.75rem 0.6rem 2.2rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.875rem;
+            background: white;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .searchbar input:focus { border-color: var(--red); }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3.5rem 1rem;
+            color: var(--slate-light);
+        }
+
+        .empty-state i { font-size: 2.5rem; opacity: 0.25; display: block; margin-bottom: 0.75rem; }
+        .empty-state p { font-weight: 600; color: var(--slate); }
+        .empty-state small { font-size: 0.82rem; }
+
+        /* ============================================================
+           MODALS
+        ============================================================ */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.48);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .overlay.open { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 560px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity:0; transform: translateY(12px) scale(0.98); }
+            to   { opacity:1; transform: none; }
+        }
+
+        .modal-lg { max-width: 680px; }
+
+        .modal-head {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .modal-title i { color: var(--red); }
+
+        .modal-close {
+            width: 30px; height: 30px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            color: var(--slate);
+            transition: background 0.15s;
+        }
+
+        .modal-close:hover { background: var(--border); }
+
+        .modal-body {
+            padding: 1.4rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-foot {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.7rem;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+
+        /* Inventory picker */
+        .picker-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .picker-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .picker-item:hover { border-color: var(--red); background: var(--red-light); }
+        .picker-item.rupt  { opacity: 0.45; cursor: not-allowed; }
+        .picker-item.rupt:hover { border-color: var(--border); background: white; }
+
+        .pi-name  { font-weight: 700; color: var(--navy); font-size: 0.875rem; }
+        .pi-ref   { font-size: 0.72rem; color: var(--slate-light); margin-top: 1px; }
+        .pi-price { font-weight: 800; color: var(--red); font-size: 0.95rem; }
+        .pi-stock { font-size: 0.72rem; text-align: right; margin-top: 1px; }
+
+        /* ============================================================
+           PDF TEMPLATE
+        ============================================================ */
+        /* Overlay de chargement PDF */
+        #pdf-loading {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,10,10,0.92);
+            z-index: 99998;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            color: white;
+        }
+        #pdf-loading.show { display: flex; }
+        #pdf-loading .pdf-spin {
+            width: 48px; height: 48px;
+            border: 4px solid rgba(255,255,255,0.15);
+            border-top-color: #d41f1f;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        #pdf-loading p { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Template PDF — visible à opacity:1 pendant la capture, caché sinon */
+        #pdf-tpl {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 794px;
+            background: white;
+            padding: 13mm 15mm 12mm;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 9.5pt;
+            color: #333;
+            line-height: 1.45;
+            z-index: 99999; /* Au-dessus de l'overlay — html2canvas le capture à opacity:1 */
+            pointer-events: none;
+        }
+        #pdf-tpl.rendering { display: block; }
+
+        .p-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 7mm;
+            padding-bottom: 6mm;
+            border-bottom: 3px solid #d41f1f;
+        }
+
+        .p-logo-name {
+            font-size: 24pt;
+            font-weight: 900;
+            color: #111;
+            letter-spacing: -0.5pt;
+            line-height: 1;
+        }
+
+        .p-logo-name em { color: #d41f1f; font-style: normal; }
+
+        .p-logo-sub {
+            font-size: 7.5pt;
+            color: #999;
+            margin-top: 3pt;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .p-artisan {
+            text-align: right;
+            font-size: 8pt;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        .p-artisan strong { color: #111; }
+
+        .p-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6mm;
+        }
+
+        .p-title    { font-size: 22pt; font-weight: 900; color: #d41f1f; letter-spacing: -0.5pt; }
+        .p-num      { font-size: 8.5pt; color: #999; margin-top: 1pt; }
+
+        .p-dates {
+            text-align: right;
+            font-size: 8pt;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .p-parties {
+            display: flex;
+            gap: 6mm;
+            margin-bottom: 7mm;
+        }
+
+        .p-party {
+            flex: 1;
+            background: #f7f7f7;
+            border-radius: 4pt;
+            padding: 4mm 5mm;
+        }
+
+        .p-party-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.12em; color: #bbb; font-weight: 700; margin-bottom: 2pt; }
+        .p-party-name  { font-size: 10pt; font-weight: 700; color: #111; margin-bottom: 1.5pt; }
+        .p-party-info  { font-size: 8pt; color: #666; line-height: 1.65; }
+
+        .p-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5mm;
+            font-size: 8.5pt;
+        }
+
+        .p-table th {
+            background: #1c1c1c;
+            color: white;
+            padding: 2.5mm 3mm;
+            text-align: left;
+            font-weight: 600;
+            font-size: 7.5pt;
+        }
+
+        .p-table th.r { text-align: right; }
+        .p-table td   { padding: 2mm 3mm; border-bottom: 0.5pt solid #eee; vertical-align: top; }
+        .p-table td.r { text-align: right; }
+        .p-table tr:nth-child(even) td { background: #fafafa; }
+
+        .p-totaux {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 6mm;
+        }
+
+        .p-totaux-inner { width: 62mm; }
+
+        .p-trow {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.2pt 0;
+            font-size: 8.5pt;
+            color: #666;
+            border-bottom: 0.5pt solid #eee;
+        }
+
+        .p-trow.p-ttc {
+            font-size: 11pt;
+            font-weight: 900;
+            color: #111;
+            border-top: 2pt solid #1c1c1c;
+            border-bottom: none;
+            padding-top: 2mm;
+            margin-top: 1mm;
+        }
+
+        .p-notes-title { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.1em; color: #bbb; font-weight: 700; margin-bottom: 1.5pt; }
+        .p-notes-text  { font-size: 8pt; color: #555; line-height: 1.6; margin-bottom: 5mm; }
+
+        .p-sigs {
+            display: flex;
+            gap: 6mm;
+            margin-bottom: 7mm;
+        }
+
+        .p-sig {
+            flex: 1;
+            border: 0.8pt solid #ddd;
+            border-radius: 3pt;
+            padding: 3mm 4mm;
+            min-height: 22mm;
+        }
+
+        .p-sig-label { font-size: 7pt; color: #aaa; font-weight: 600; }
+
+        .p-footer {
+            border-top: 0.8pt solid #eee;
+            padding-top: 3mm;
+            font-size: 7pt;
+            color: #bbb;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        /* ============================================================
+           MISC
+        ============================================================ */
+        code {
+            font-size: 0.75rem;
+            background: #f0f0f0;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .row-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--dark);
+            color: white;
+            padding: 0.8rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .toast.show { transform: none; opacity: 1; }
+        .toast.success { background: var(--green); }
+        .toast.error   { background: var(--danger); }
+
+        /* ============================================================
+           SIGNATURE PAD
+        ============================================================ */
+        .sig-pad-wrap {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            background: #fafafa;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+        .sig-pad-wrap:hover { border-color: #bbb; }
+        .sig-pad-wrap canvas {
+            display: block;
+            width: 100%;
+            height: 110px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .sig-pad-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.6rem;
+            background: #f0f0f0;
+            border-top: 1px solid var(--border);
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+        }
+        .sig-pad-toolbar span { font-size: 0.72rem; color: var(--slate-light); }
+        .sig-clear-btn {
+            font-size: 0.72rem;
+            color: var(--danger);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: 600;
+            padding: 0;
+        }
+        .sig-clear-btn:hover { text-decoration: underline; }
+
+        /* ============================================================
+           RAPPELS
+        ============================================================ */
+        .rappel-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: white;
+            margin-bottom: 0.6rem;
+            transition: box-shadow 0.15s;
+        }
+        .rappel-card:hover { box-shadow: var(--shadow-sm); }
+        .rappel-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .rappel-dot.overdue { background: var(--danger); }
+        .rappel-dot.soon    { background: var(--orange); }
+        .rappel-dot.ok      { background: var(--green); }
+        .rappel-nom         { font-weight: 700; color: var(--navy); font-size: 0.9rem; }
+        .rappel-meta        { font-size: 0.78rem; color: var(--slate-light); margin-top: 1px; }
+        .rappel-date        { font-size: 0.8rem; font-weight: 600; margin-left: auto; flex-shrink: 0; }
+        .rappel-date.overdue { color: var(--danger); }
+        .rappel-date.soon    { color: var(--orange); }
+        .rappel-date.ok      { color: var(--green); }
+
+        /* Modal confirmation rappel */
+        .rappel-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9990;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .rappel-modal-overlay.show { display: flex; }
+        .rappel-modal-box {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .rappel-modal-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .rappel-modal-title { font-size: 1.05rem; font-weight: 800; color: var(--navy); margin-bottom: 0.4rem; }
+        .rappel-modal-sub   { font-size: 0.85rem; color: var(--slate-light); margin-bottom: 1.5rem; line-height: 1.5; }
+        .rappel-modal-btns  { display: flex; gap: 0.75rem; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN OVERLAY
+============================================================ -->
+<div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+        <img src="SIB-logo.png" alt="SIB.Elec" class="login-logo">
+        <div class="login-title">Espace privé SIB.Elec</div>
+        <div class="login-sub">Connexion sécurisée — Accès réservé à David SIBOUT</div>
+
+        <!-- Mode Supabase (affiché si configuré) -->
+        <div id="login-supabase-form" style="display:none;width:100%;text-align:left;">
+            <div class="login-supabase-badge"><i class="fa-solid fa-database"></i> Supabase Auth</div>
+            <label class="login-field-label" for="login-email">Adresse e-mail</label>
+            <input type="email" class="login-email-input" id="login-email" placeholder="siboutrenov@gmail.com"
+                onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()">
+            <label class="login-field-label" for="login-password">Mot de passe</label>
+            <input type="password" class="login-email-input" id="login-password" placeholder="••••••••"
+                onkeydown="if(event.key==='Enter')checkLogin()">
+        </div>
+
+        <!-- Mode local (affiché si Supabase non configuré) -->
+        <div id="login-local-form" style="display:none;width:100%;">
+            <div class="login-input-wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" class="login-input" id="login-code" placeholder="• • • •" maxlength="8"
+                    onkeydown="if(event.key==='Enter')checkLogin()">
+            </div>
+            <div class="login-hint">Code d'accès local</div>
+        </div>
+
+        <button class="login-btn" onclick="checkLogin()" style="margin-top:1rem;">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Accéder au dashboard
+        </button>
+        <div class="login-error" id="login-error"></div>
+
+        <div id="supabase-not-configured" style="display:none;margin-top:1rem;font-size:0.72rem;color:rgba(255,255,255,0.3);">
+            <i class="fa-solid fa-circle-info"></i> Mode local — configurez <code>supabase-config.js</code> pour activer la synchronisation cloud
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SIDEBAR
+============================================================ -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img src="SIB-logo.png" alt="SIB.Elec" style="width:100%;max-width:170px;border-radius:8px;display:block;margin-bottom:0.75rem;">
+        <span class="priv-badge"><i class="fa-solid fa-lock"></i> Espace privé</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Outils</div>
+
+        <button class="nav-btn active" id="nav-devis" onclick="switchTab('devis')">
+            <i class="fa-solid fa-file-invoice nav-icon"></i>
+            Générateur de Devis
+        </button>
+
+        <button class="nav-btn" id="nav-inventaire" onclick="switchTab('inventaire')">
+            <i class="fa-solid fa-boxes-stacked nav-icon"></i>
+            Gestion Inventaire
+            <span class="nav-alert-badge" id="alert-badge">0</span>
+        </button>
+
+        <button class="nav-btn" id="nav-avis" onclick="switchTab('avis')">
+            <i class="fa-solid fa-star nav-icon"></i>
+            Gestion des Avis
+            <span class="nav-alert-badge" id="avis-badge">0</span>
+        </button>
+
+        <button class="nav-btn" id="nav-rappels" onclick="switchTab('rappels')">
+            <i class="fa-solid fa-bell nav-icon"></i>
+            Rappels &amp; Suivi
+            <span class="nav-alert-badge" id="rappels-badge" style="display:none;">0</span>
+        </button>
+
+        <button class="nav-btn" id="nav-compta" onclick="switchTab('compta')">
+            <i class="fa-solid fa-chart-line nav-icon"></i>
+            Compta &amp; CA
+        </button>
+
+        <div class="nav-section-label">Navigation</div>
+
+        <a href="index.html" class="nav-btn" style="display:flex;">
+            <i class="fa-solid fa-globe nav-icon"></i>
+            Voir le site
+        </a>
+        <a href="avis.html" class="nav-btn" style="display:flex;" target="_blank">
+            <i class="fa-solid fa-eye nav-icon"></i>
+            Page Avis (public)
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div style="margin-bottom:0.6rem;">
+            <span class="sync-status local" id="sync-status-badge">
+                <i class="fa-solid fa-circle-dot"></i> Mode local
+            </span>
+            <button onclick="logoutSupabase()" id="logout-btn" style="display:none;background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.7rem;cursor:pointer;margin-left:0.5rem;" title="Déconnexion">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+        <div class="sidebar-contact">
+            <strong>David SIBOUT</strong><br>
+            613 Ch. du Rondel — 14100 FIRFOL<br>
+            <a href="tel:+33669762204">06 69 76 22 04</a><br>
+            <a href="mailto:siboutrenov@gmail.com">siboutrenov@gmail.com</a>
+        </div>
+    </div>
+</aside>
+
+<!-- ============================================================
+     MAIN
+============================================================ -->
+<main class="main">
+
+    <!-- ========================================================
+         ONGLET 1 — GÉNÉRATEUR DE DEVIS
+    ======================================================== -->
+    <div id="tab-devis" class="tab-panel active">
+
+        <div class="main-header">
+            <div>
+                <div class="main-title">
+                    <i class="fa-solid fa-file-invoice" style="color:var(--red);margin-right:0.4rem;"></i>
+                    Générateur de Devis PDF
+                </div>
+                <div class="main-subtitle">Remplissez le formulaire · Le PDF est généré localement, rien n'est envoyé</div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                <button class="btn btn-secondary" onclick="resetDevis()">
+                    <i class="fa-solid fa-rotate-left"></i> Réinitialiser
+                </button>
+                <button class="btn btn-secondary" onclick="shareDevis()" title="Générer un lien client">
+                    <i class="fa-solid fa-share-nodes"></i> Partager
+                </button>
+                <button class="btn btn-success btn-lg" onclick="generatePDF()">
+                    <i class="fa-solid fa-file-pdf"></i> Générer PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="main-body">
+
+            <!-- Recherche clients / anciens devis -->
+            <div class="card" style="margin-bottom:1rem;">
+                <div class="card-body" style="padding:1rem 1.4rem;">
+                    <div class="search-bar-wrap" style="margin-bottom:0;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-bar" id="devis-search"
+                            placeholder="Rechercher un client, un devis, une ville…"
+                            oninput="searchDevis(this.value)">
+                    </div>
+                    <div id="search-results" style="display:none;margin-top:0.75rem;max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);"></div>
+                </div>
+            </div>
+
+            <!-- Numéro & Dates -->
+            <div class="card">
+                <div class="card-body" style="padding:1rem 1.4rem;">
+                    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                        <div class="devis-num-pill">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <span id="devis-num-display">DEV-202604-001</span>
+                        </div>
+                        <div class="form-group" style="flex:1;min-width:140px;">
+                            <label>Date du devis</label>
+                            <input type="date" id="devis-date">
+                        </div>
+                        <div class="form-group" style="flex:1;min-width:140px;">
+                            <label>Valable jusqu'au</label>
+                            <input type="date" id="devis-validity">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-user"></i> Informations client</div>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid" style="gap:1rem;">
+                        <div class="form-group">
+                            <label>Nom complet *</label>
+                            <input type="text" id="c-nom" placeholder="Dupont Jean">
+                        </div>
+                        <div class="form-group">
+                            <label>Société (optionnel)</label>
+                            <input type="text" id="c-societe" placeholder="Nom de l'entreprise">
+                        </div>
+                        <div class="form-group col-2">
+                            <label>Adresse</label>
+                            <input type="text" id="c-adresse" placeholder="1 Rue de la Paix">
+                        </div>
+                        <div class="form-group">
+                            <label>Code postal</label>
+                            <input type="text" id="c-cp" placeholder="14100">
+                        </div>
+                        <div class="form-group">
+                            <label>Ville</label>
+                            <input type="text" id="c-ville" placeholder="FIRFOL">
+                        </div>
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" id="c-tel" placeholder="06 00 00 00 00">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" id="c-email" placeholder="client@email.fr">
+                        </div>
+                        <div class="form-group col-2">
+                            <label>Adresse du chantier (si différente)</label>
+                            <input type="text" id="c-chantier" placeholder="Laisser vide si identique à l'adresse client">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lignes prestations -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-list"></i> Prestations &amp; Fournitures</div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button class="btn btn-secondary btn-sm" onclick="openPicker()">
+                            <i class="fa-solid fa-boxes-stacked"></i> Depuis l'inventaire
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="addLigne()">
+                            <i class="fa-solid fa-plus"></i> Ligne vide
+                        </button>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="lignes-table">
+                        <thead>
+                            <tr>
+                                <th class="th-desc">Désignation / Description</th>
+                                <th class="th-qty" style="text-align:center;">Qté</th>
+                                <th class="th-unit">Unité</th>
+                                <th class="th-pu">P.U. HT (€)</th>
+                                <th class="th-tva" style="text-align:center;">TVA</th>
+                                <th class="th-total" style="text-align:right;">Total HT</th>
+                                <th class="th-del"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="lignes-body"></tbody>
+                    </table>
+                </div>
+                <div style="padding:0.65rem 1rem;border-top:1px solid var(--border);">
+                    <button class="btn btn-secondary btn-sm" onclick="addLigne()">
+                        <i class="fa-solid fa-plus"></i> Ajouter une ligne
+                    </button>
+                </div>
+            </div>
+
+            <!-- Signature client -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-pen-nib"></i> Signature client (optionnel)</div>
+                    <div style="font-size:0.75rem;color:var(--slate-light);">Signez directement sur l'écran ou laissez vide</div>
+                </div>
+                <div class="card-body">
+                    <div class="sig-pad-wrap">
+                        <canvas id="sig-canvas"></canvas>
+                        <div class="sig-pad-toolbar">
+                            <span><i class="fa-solid fa-hand-pointer"></i> Dessinez votre signature ici</span>
+                            <button class="sig-clear-btn" onclick="clearSignature()"><i class="fa-solid fa-eraser"></i> Effacer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes + Totaux -->
+            <div style="display:grid;grid-template-columns:1fr auto;gap:1.25rem;align-items:start;">
+
+                <div class="card" style="margin-bottom:0;">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-note-sticky"></i> Notes &amp; Conditions</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group" style="margin-bottom:1rem;">
+                            <label>Notes pour le client</label>
+                            <textarea id="d-notes" placeholder="Observations, conditions particulières, travaux inclus/exclus..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Conditions de paiement</label>
+                            <select id="d-paiement">
+                                <option>30% acompte à la commande, solde à la livraison</option>
+                                <option>50% acompte à la commande, solde à la livraison</option>
+                                <option>Paiement intégral à la livraison</option>
+                                <option>Paiement à 30 jours fin de mois</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="min-width:290px;">
+                    <div class="totaux-box" style="margin-bottom:1rem;">
+                        <div class="total-row">
+                            <span class="t-label">Total HT</span>
+                            <span class="t-amount" id="t-ht">0,00 €</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="t-label">TVA 10%</span>
+                            <span class="t-amount" id="t-tva10">0,00 €</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="t-label">TVA 20%</span>
+                            <span class="t-amount" id="t-tva20">0,00 €</span>
+                        </div>
+                        <div class="total-row ttc">
+                            <span>TOTAL TTC</span>
+                            <span id="t-ttc">0,00 €</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success btn-lg" style="width:100%;" onclick="generatePDF()">
+                        <i class="fa-solid fa-file-pdf"></i> Générer le PDF
+                    </button>
+                    <p style="font-size:0.7rem;color:var(--slate-light);text-align:center;margin-top:0.5rem;">
+                        <i class="fa-solid fa-shield" style="color:var(--green);"></i>
+                        Généré sur votre appareil, rien n'est envoyé en ligne
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div><!-- /tab-devis -->
+
+
+    <!-- ========================================================
+         ONGLET 2 — INVENTAIRE
+    ======================================================== -->
+    <div id="tab-inventaire" class="tab-panel">
+
+        <div class="main-header">
+            <div>
+                <div class="main-title">
+                    <i class="fa-solid fa-boxes-stacked" style="color:var(--red);margin-right:0.4rem;"></i>
+                    Gestion de l'Inventaire
+                </div>
+                <div class="main-subtitle">Données sauvegardées automatiquement sur cet appareil (localStorage)</div>
+            </div>
+            <button class="btn btn-primary" onclick="openItemModal()">
+                <i class="fa-solid fa-plus"></i> Ajouter un article
+            </button>
+        </div>
+
+        <div class="main-body">
+
+            <!-- Stats -->
+            <div class="inv-stats">
+                <div class="stat-box">
+                    <div class="stat-val" id="s-total">0</div>
+                    <div class="stat-label">Articles au total</div>
+                </div>
+                <div class="stat-box s-ok">
+                    <div class="stat-val" id="s-ok">0</div>
+                    <div class="stat-label">En stock (OK)</div>
+                </div>
+                <div class="stat-box s-alert">
+                    <div class="stat-val" id="s-alerte">0</div>
+                    <div class="stat-label">En alerte de stock</div>
+                </div>
+                <div class="stat-box s-danger">
+                    <div class="stat-val" id="s-rupture">0</div>
+                    <div class="stat-label">Rupture de stock</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-table-list"></i> Stock en temps réel</div>
+                    <div class="searchbar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="inv-search" placeholder="Rechercher..." oninput="renderInventory()">
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="inv-table">
+                        <thead>
+                            <tr>
+                                <th>Désignation</th>
+                                <th>Référence</th>
+                                <th>Unité</th>
+                                <th>Prix unitaire HT</th>
+                                <th>Quantité en stock</th>
+                                <th>Seuil d'alerte</th>
+                                <th>Statut</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inv-tbody"></tbody>
+                    </table>
+                    <div id="inv-empty" class="empty-state" style="display:none;">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p>Aucun article dans l'inventaire</p>
+                        <small>Cliquez sur "Ajouter un article" pour commencer</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /tab-inventaire -->
+
+
+    <!-- ========================================================
+         ONGLET 3 — GESTION DES AVIS
+    ======================================================== -->
+    <div id="tab-avis" class="tab-panel">
+
+        <div class="main-header">
+            <div>
+                <div class="main-title">
+                    <i class="fa-solid fa-star" style="color:var(--red);margin-right:0.4rem;"></i>
+                    Gestion des Avis Clients
+                </div>
+                <div class="main-subtitle">Validez les avis reçus par email · Exportez le code à coller dans reviews.js</div>
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+                <button class="btn btn-secondary" onclick="exportReviews()">
+                    <i class="fa-solid fa-code"></i> Exporter reviews.js
+                </button>
+                <button class="btn btn-primary" onclick="openAvisModal()">
+                    <i class="fa-solid fa-plus"></i> Ajouter un avis validé
+                </button>
+            </div>
+        </div>
+
+        <div class="main-body">
+
+            <!-- Stats avis -->
+            <div class="inv-stats" style="grid-template-columns:repeat(3,1fr);">
+                <div class="stat-box">
+                    <div class="stat-val" id="av-total">0</div>
+                    <div class="stat-label">Avis publiés</div>
+                </div>
+                <div class="stat-box s-ok">
+                    <div class="stat-val" id="av-avg">—</div>
+                    <div class="stat-label">Note moyenne</div>
+                </div>
+                <div class="stat-box s-alert">
+                    <div class="stat-val" id="av-pending">0</div>
+                    <div class="stat-label">En attente (email non lu)</div>
+                </div>
+            </div>
+
+            <!-- Explication workflow -->
+            <div class="card" style="margin-bottom:1.25rem;border-left:3px solid var(--red);">
+                <div class="card-body" style="padding:1.1rem 1.4rem;">
+                    <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;">
+                        <div>
+                            <div style="font-size:0.8rem;font-weight:700;color:var(--navy);margin-bottom:0.35rem;">
+                                <i class="fa-solid fa-circle-info" style="color:var(--red);margin-right:0.4rem;"></i>
+                                Comment fonctionne le système d'avis
+                            </div>
+                            <div style="font-size:0.8rem;color:var(--slate-light);line-height:1.7;">
+                                <strong>1.</strong> Un client soumet un avis sur <code>avis.html</code> → son client mail s'ouvre avec le formulaire pré-rempli.<br>
+                                <strong>2.</strong> David reçoit l'email sur <strong>siboutrenov@gmail.com</strong>.<br>
+                                <strong>3.</strong> David clique <strong>"Ajouter un avis validé"</strong> et recopie le contenu.<br>
+                                <strong>4.</strong> David clique <strong>"Exporter reviews.js"</strong> et remplace le fichier reviews.js par le code copié.<br>
+                                <strong>5.</strong> L'avis apparaît instantanément sur le site.
+                            </div>
+                        </div>
+                        <a href="avis.html" target="_blank" class="btn btn-outline btn-sm" style="white-space:nowrap;flex-shrink:0;align-self:center;">
+                            <i class="fa-solid fa-eye"></i> Voir la page avis
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des avis -->
+            <div class="card" style="margin-bottom:0;">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-list-check"></i> Avis publiés</div>
+                    <div class="searchbar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="avis-search" placeholder="Rechercher…" oninput="renderAvis()">
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="inv-table" id="avis-table">
+                        <thead>
+                            <tr>
+                                <th>Auteur</th>
+                                <th>Ville</th>
+                                <th>Service</th>
+                                <th style="text-align:center;">Note</th>
+                                <th>Extrait de l'avis</th>
+                                <th>Date</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="avis-tbody"></tbody>
+                    </table>
+                    <div id="avis-empty" class="empty-state" style="display:none;">
+                        <i class="fa-solid fa-star"></i>
+                        <p>Aucun avis publié</p>
+                        <small>Cliquez sur "Ajouter un avis validé" pour commencer</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /tab-avis -->
+
+
+    <!-- ========================================================
+         ONGLET 4 — RAPPELS & SUIVI
+    ======================================================== -->
+    <div id="tab-rappels" class="tab-panel">
+
+        <div class="main-header">
+            <div>
+                <div class="main-title">
+                    <i class="fa-solid fa-bell" style="color:var(--red);margin-right:0.4rem;"></i>
+                    Rappels &amp; Suivi clients
+                </div>
+                <div class="main-subtitle">Clients à relancer · Entretiens programmés</div>
+            </div>
+            <button class="btn btn-secondary" onclick="clearDoneRappels()">
+                <i class="fa-solid fa-broom"></i> Archiver les passés
+            </button>
+        </div>
+
+        <div class="main-body">
+
+            <!-- Stats rappels -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem;">
+                <div class="card" style="margin:0;">
+                    <div class="card-body" style="padding:1rem 1.25rem;text-align:center;">
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--danger);" id="r-overdue">0</div>
+                        <div style="font-size:0.75rem;color:var(--slate-light);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">En retard</div>
+                    </div>
+                </div>
+                <div class="card" style="margin:0;">
+                    <div class="card-body" style="padding:1rem 1.25rem;text-align:center;">
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--orange);" id="r-soon">0</div>
+                        <div style="font-size:0.75rem;color:var(--slate-light);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Dans 30 jours</div>
+                    </div>
+                </div>
+                <div class="card" style="margin:0;">
+                    <div class="card-body" style="padding:1rem 1.25rem;text-align:center;">
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--green);" id="r-ok">0</div>
+                        <div style="font-size:0.75rem;color:var(--slate-light);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">À venir</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body" id="rappels-list">
+                    <p style="text-align:center;color:var(--slate-light);padding:2rem;">
+                        <i class="fa-solid fa-bell-slash" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.75rem;"></i>
+                        Aucun rappel programmé.<br>Générez un devis et choisissez "Programmer un rappel".
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /tab-rappels -->
+
+
+    <!-- ========================================================
+         ONGLET 5 — COMPTA & CA
+    ======================================================== -->
+    <div id="tab-compta" class="tab-panel">
+
+        <div class="main-header">
+            <div>
+                <div class="main-title">
+                    <i class="fa-solid fa-chart-line" style="color:var(--red);margin-right:0.4rem;"></i>
+                    Compta &amp; Chiffre d'Affaires
+                </div>
+                <div class="main-subtitle">Devis acceptés · Dépenses · Résultat net estimé</div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                <select id="ca-filter-year" class="search-bar" style="width:auto;padding:0.5rem 0.75rem;" onchange="renderCompta()">
+                    <!-- généré par JS -->
+                </select>
+                <select id="ca-filter-month" class="search-bar" style="width:auto;padding:0.5rem 0.75rem;" onchange="renderCompta()">
+                    <option value="">Toute l'année</option>
+                    <option value="1">Janvier</option><option value="2">Février</option>
+                    <option value="3">Mars</option><option value="4">Avril</option>
+                    <option value="5">Mai</option><option value="6">Juin</option>
+                    <option value="7">Juillet</option><option value="8">Août</option>
+                    <option value="9">Septembre</option><option value="10">Octobre</option>
+                    <option value="11">Novembre</option><option value="12">Décembre</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="main-body">
+
+            <!-- KPIs CA -->
+            <div class="ca-stat-grid">
+                <div class="ca-stat accent">
+                    <div class="ca-stat-val" id="ca-ttc">0 €</div>
+                    <div class="ca-stat-label">CA TTC</div>
+                </div>
+                <div class="ca-stat">
+                    <div class="ca-stat-val" id="ca-ht">0 €</div>
+                    <div class="ca-stat-label">CA HT</div>
+                </div>
+                <div class="ca-stat">
+                    <div class="ca-stat-val" id="ca-nb-devis">0</div>
+                    <div class="ca-stat-label">Devis acceptés</div>
+                </div>
+                <div class="ca-stat">
+                    <div class="ca-stat-val" id="ca-depenses-total">0 €</div>
+                    <div class="ca-stat-label">Dépenses</div>
+                </div>
+                <div class="ca-stat green">
+                    <div class="ca-stat-val" id="ca-resultat">0 €</div>
+                    <div class="ca-stat-label">Résultat net estimé</div>
+                </div>
+            </div>
+
+            <!-- Devis sauvegardés -->
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between;">
+                    <div class="card-title"><i class="fa-solid fa-file-invoice"></i> Devis enregistrés</div>
+                    <div style="font-size:0.78rem;color:var(--slate-light);">Cliquez sur un statut pour le modifier</div>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div style="overflow-x:auto;">
+                        <table class="lignes-table" style="font-size:0.82rem;">
+                            <thead>
+                                <tr>
+                                    <th>N° Devis</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th style="text-align:right;">Montant TTC</th>
+                                    <th style="text-align:center;">Statut</th>
+                                    <th style="text-align:center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devis-history-tbody">
+                                <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--slate-light);">Aucun devis enregistré</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dépenses -->
+            <div class="card">
+                <div class="card-header" style="justify-content:space-between;">
+                    <div class="card-title"><i class="fa-solid fa-receipt"></i> Dépenses</div>
+                    <button class="btn btn-primary btn-sm" onclick="openOverlay('depense-overlay')">
+                        <i class="fa-solid fa-plus"></i> Ajouter
+                    </button>
+                </div>
+                <div class="card-body" id="depenses-list">
+                    <p style="text-align:center;color:var(--slate-light);padding:1rem;">Aucune dépense enregistrée</p>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /tab-compta -->
+
+</main><!-- /main -->
+
+
+<!-- ============================================================
+     MODAL — PICKER INVENTAIRE (pour devis)
+============================================================ -->
+<div class="overlay" id="picker-overlay">
+    <div class="modal modal-lg">
+        <div class="modal-head">
+            <div class="modal-title"><i class="fa-solid fa-boxes-stacked"></i> Choisir un article depuis l'inventaire</div>
+            <button class="modal-close" onclick="closeOverlay('picker-overlay')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="searchbar" style="margin-bottom:1rem;display:block;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="picker-search" placeholder="Rechercher un article..."
+                    oninput="renderPickerList()"
+                    style="width:100%;padding:0.65rem 0.75rem 0.65rem 2.2rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:0.875rem;outline:none;">
+            </div>
+            <div class="picker-list" id="picker-list"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL — AJOUTER / MODIFIER ARTICLE
+============================================================ -->
+<div class="overlay" id="item-overlay">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-title"><i class="fa-solid fa-box"></i> <span id="item-modal-title">Ajouter un article</span></div>
+            <button class="modal-close" onclick="closeOverlay('item-overlay')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="item-id">
+            <div class="form-grid" style="gap:1rem;">
+                <div class="form-group col-2">
+                    <label>Désignation *</label>
+                    <input type="text" id="item-designation" placeholder="Ex : Câble HO7V-R 2,5mm²">
+                </div>
+                <div class="form-group">
+                    <label>Référence</label>
+                    <input type="text" id="item-ref" placeholder="Ex : CAB-25-R">
+                </div>
+                <div class="form-group">
+                    <label>Unité</label>
+                    <select id="item-unit">
+                        <option value="u">u — unité</option>
+                        <option value="m">m — mètre</option>
+                        <option value="m²">m² — mètre carré</option>
+                        <option value="h">h — heure</option>
+                        <option value="kg">kg</option>
+                        <option value="forfait">forfait</option>
+                        <option value="boîte">boîte</option>
+                        <option value="rouleau">rouleau</option>
+                        <option value="sac">sac</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Prix unitaire HT (€)</label>
+                    <input type="number" id="item-price" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label>TVA par défaut</label>
+                    <select id="item-tva">
+                        <option value="10">10% (rénovation)</option>
+                        <option value="20">20% (standard)</option>
+                        <option value="0">0% (exonéré)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantité en stock *</label>
+                    <input type="number" id="item-qty" placeholder="0" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Seuil d'alerte</label>
+                    <input type="number" id="item-seuil" placeholder="5" min="0" step="1">
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-secondary" onclick="closeOverlay('item-overlay')">Annuler</button>
+            <button class="btn btn-primary" onclick="saveItem()"><i class="fa-solid fa-check"></i> Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL — AJOUTER UN AVIS VALIDÉ
+============================================================ -->
+<div class="overlay" id="avis-overlay">
+    <div class="modal modal-lg">
+        <div class="modal-head">
+            <div class="modal-title"><i class="fa-solid fa-star"></i> <span id="avis-modal-title">Ajouter un avis validé</span></div>
+            <button class="modal-close" onclick="closeOverlay('avis-overlay')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="avis-id">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="form-group" style="grid-column:span 2;">
+                    <label>Nom / Prénom affiché *</label>
+                    <input type="text" id="avis-name" placeholder="Ex : Marie-Laure D.">
+                </div>
+                <div class="form-group">
+                    <label>Ville</label>
+                    <input type="text" id="avis-city" placeholder="Lisieux">
+                </div>
+                <div class="form-group">
+                    <label>Date d'affichage</label>
+                    <input type="text" id="avis-date" placeholder="Mars 2026">
+                </div>
+                <div class="form-group" style="grid-column:span 2;">
+                    <label>Prestation</label>
+                    <select id="avis-service">
+                        <option value="">— Sélectionner —</option>
+                        <option>Électricité générale</option>
+                        <option>Automatisme (portail, volets…)</option>
+                        <option>Plaquisterie</option>
+                        <option>Enduit (façade ou intérieur)</option>
+                        <option>Borne de recharge IRVE</option>
+                        <option>Panneaux solaires</option>
+                        <option>Plusieurs prestations</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column:span 2;">
+                    <label>Note (étoiles) *</label>
+                    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                        <select id="avis-stars" style="padding:0.5rem 0.75rem;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.9rem;background:#fafafa;outline:none;width:auto;">
+                            <option value="5">★★★★★ — 5 étoiles</option>
+                            <option value="4">★★★★☆ — 4 étoiles</option>
+                            <option value="3">★★★☆☆ — 3 étoiles</option>
+                            <option value="2">★★☆☆☆ — 2 étoiles</option>
+                            <option value="1">★☆☆☆☆ — 1 étoile</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column:span 2;">
+                    <label>Texte de l'avis * (copié depuis l'email reçu)</label>
+                    <textarea id="avis-text" style="min-height:130px;" placeholder="Collez ici le texte de l'avis envoyé par le client…"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-secondary" onclick="closeOverlay('avis-overlay')">Annuler</button>
+            <button class="btn btn-primary" onclick="saveAvis()"><i class="fa-solid fa-check"></i> Publier l'avis</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAL — EXPORT REVIEWS.JS
+============================================================ -->
+<div class="overlay" id="export-overlay">
+    <div class="modal modal-lg">
+        <div class="modal-head">
+            <div class="modal-title"><i class="fa-solid fa-code"></i> Exporter reviews.js</div>
+            <button class="modal-close" onclick="closeOverlay('export-overlay')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div style="background:#f4f4f4;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+                <div style="font-size:0.78rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">
+                    <i class="fa-solid fa-circle-info" style="color:var(--red);"></i>
+                    Instructions
+                </div>
+                <ol style="font-size:0.78rem;color:var(--slate);padding-left:1.1rem;line-height:2;">
+                    <li>Copiez le code ci-dessous (bouton "Tout copier")</li>
+                    <li>Ouvrez le fichier <code>reviews.js</code> sur votre ordinateur</li>
+                    <li>Sélectionnez tout le contenu (<kbd>Ctrl+A</kbd>) et collez (<kbd>Ctrl+V</kbd>)</li>
+                    <li>Sauvegardez — les avis s'affichent immédiatement sur le site</li>
+                </ol>
+            </div>
+            <div style="position:relative;">
+                <button onclick="copyExport()" class="btn btn-primary btn-sm" style="position:absolute;top:0.5rem;right:0.5rem;z-index:1;">
+                    <i class="fa-solid fa-copy"></i> Tout copier
+                </button>
+                <textarea id="export-code" readonly
+                    style="width:100%;min-height:260px;font-family:monospace;font-size:0.72rem;padding:0.75rem;border:1.5px solid var(--border);border-radius:8px;background:#1c1c1c;color:#4ade80;line-height:1.6;resize:vertical;"></textarea>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-secondary" onclick="closeOverlay('export-overlay')">Fermer</button>
+            <button class="btn btn-success" onclick="copyExport()"><i class="fa-solid fa-copy"></i> Copier le code</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAL — DÉPENSE
+============================================================ -->
+<div class="overlay" id="depense-overlay">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-title"><i class="fa-solid fa-receipt"></i> Ajouter une dépense</div>
+            <button class="modal-close" onclick="closeOverlay('depense-overlay')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="dep-id">
+            <div class="form-grid" style="gap:1rem;">
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="dep-categorie">
+                        <option value="materiel">Matériel / Fournitures</option>
+                        <option value="carburant">Carburant / Déplacements</option>
+                        <option value="outillage">Outillage</option>
+                        <option value="assurance">Assurance</option>
+                        <option value="formation">Formation</option>
+                        <option value="frais-bureau">Frais de bureau</option>
+                        <option value="sous-traitance">Sous-traitance</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="dep-date">
+                </div>
+                <div class="form-group col-2">
+                    <label>Description</label>
+                    <input type="text" id="dep-description" placeholder="Ex : Câbles électriques — chantier Martin">
+                </div>
+                <div class="form-group">
+                    <label>Montant HT (€)</label>
+                    <input type="number" id="dep-montant" min="0" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label>TVA</label>
+                    <select id="dep-tva">
+                        <option value="0">0%</option>
+                        <option value="10">10%</option>
+                        <option value="20" selected>20%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-secondary" onclick="closeOverlay('depense-overlay')">Annuler</button>
+            <button class="btn btn-primary" onclick="saveDepense()"><i class="fa-solid fa-check"></i> Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAL — RAPPEL APRÈS PDF
+============================================================ -->
+<div class="rappel-modal-overlay" id="rappel-modal">
+    <div class="rappel-modal-box">
+        <div class="rappel-modal-icon">🔔</div>
+        <div class="rappel-modal-title">Programmer un rappel ?</div>
+        <div class="rappel-modal-sub" id="rappel-modal-sub">
+            Souhaitez-vous programmer un rappel d'entretien dans <strong>1 an</strong> pour ce client ?
+        </div>
+        <div class="rappel-modal-btns">
+            <button class="btn btn-secondary" onclick="dismissRappelModal()">Non merci</button>
+            <button class="btn btn-primary" onclick="confirmRappel()">
+                <i class="fa-solid fa-bell"></i> Programmer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     PDF TEMPLATE (hidden)
+============================================================ -->
+<div id="pdf-loading">
+    <div class="pdf-spin"></div>
+    <p>Génération du PDF en cours…</p>
+</div>
+<div id="pdf-tpl"></div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+/* ============================================================
+   SUPABASE INIT
+============================================================ */
+let _sb = null;
+let _sbUser = null;
+let _sbMode = false; // true = Supabase actif
+
+function initSupabase() {
+    const cfg = window.SIBELEC_SUPABASE;
+    if (!cfg || !cfg.url || cfg.url === 'VOTRE_URL_ICI') return false;
+    try {
+        _sb = window.supabase.createClient(cfg.url, cfg.key);
+        _sbMode = true;
+        return true;
+    } catch(e) { return false; }
+}
+
+function setSyncBadge(mode) {
+    const b = document.getElementById('sync-status-badge');
+    if (!b) return;
+    if (mode === 'online') {
+        b.className = 'sync-status online';
+        b.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Synchronisé';
+        const lb = document.getElementById('logout-btn');
+        if (lb) lb.style.display = 'inline';
+    } else if (mode === 'offline') {
+        b.className = 'sync-status offline';
+        b.innerHTML = '<i class="fa-solid fa-wifi-slash"></i> Hors ligne';
+    } else {
+        b.className = 'sync-status local';
+        b.innerHTML = '<i class="fa-solid fa-circle-dot"></i> Mode local';
+    }
+}
+
+/* ============================================================
+   STATE
+============================================================ */
+let inventory = [];
+let lignes    = [];
+
+const SK_INV     = 'sibelec_inv_v2';
+const SK_SEQ     = 'sibelec_devis_seq';
+const SK_AVIS    = 'sibelec_avis_v1';
+const SK_RAPPELS = 'sibelec_rappels_v1';
+const SK_DEVIS_H = 'sibelec_devis_history_v1';
+const SK_DEPENSES = 'sibelec_depenses_v1';
+
+let avisDB     = [];
+let rappelsDB  = [];
+let devisHistory = [];   // Devis enregistrés (pour compta)
+let depensesDB = [];
+
+// Signature pad instance
+let sigPad = null;
+// Rappel pending (after PDF gen)
+let _pendingRappel = null;
+
+/* ============================================================
+   BOOTSTRAP
+============================================================ */
+document.addEventListener('DOMContentLoaded', async () => {
+    const sbOk = initSupabase();
+    await initLogin(sbOk);
+    loadInventory();
+    loadAvis();
+    loadRappels();
+    loadDevisHistory();
+    loadDepenses();
+    initDevis();
+    initSignaturePad();
+    updateAlertBadge();
+    initComptaYears();
+    // Date par défaut pour les dépenses
+    const depDate = document.getElementById('dep-date');
+    if (depDate) depDate.value = new Date().toISOString().slice(0,10);
+});
+
+/* ============================================================
+   LOGIN — Hybride Supabase / Local
+============================================================ */
+async function initLogin(sbOk) {
+    const overlay = document.getElementById('login-overlay');
+
+    if (sbOk) {
+        // Mode Supabase
+        document.getElementById('login-supabase-form').style.display = 'block';
+        document.getElementById('login-local-form').style.display    = 'none';
+        document.querySelector('.login-sub').textContent = 'Connectez-vous avec votre compte Supabase';
+
+        // Vérifier session existante
+        const { data: { session } } = await _sb.auth.getSession();
+        if (session) {
+            _sbUser = session.user;
+            overlay.style.display = 'none';
+            setSyncBadge('online');
+            syncFromSupabase();
+            return;
+        }
+        overlay.style.display = 'flex';
+        setTimeout(() => document.getElementById('login-email').focus(), 120);
+    } else {
+        // Mode local (sans Supabase)
+        document.getElementById('login-supabase-form').style.display = 'none';
+        document.getElementById('login-local-form').style.display    = 'block';
+        document.getElementById('supabase-not-configured').style.display = 'block';
+        setSyncBadge('local');
+
+        if (sessionStorage.getItem('sibelec_auth') === '1') {
+            overlay.style.display = 'none';
+            return;
+        }
+        overlay.style.display = 'flex';
+        setTimeout(() => document.getElementById('login-code').focus(), 120);
+    }
+}
+
+async function checkLogin() {
+    const errEl = document.getElementById('login-error');
+    errEl.textContent = '';
+
+    if (_sbMode) {
+        // Authentification Supabase
+        const email    = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        if (!email || !password) { errEl.textContent = 'Email et mot de passe requis.'; return; }
+
+        const btn = document.querySelector('.login-btn');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connexion…';
+        btn.disabled  = true;
+
+        const { data, error } = await _sb.auth.signInWithPassword({ email, password });
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Accéder au dashboard';
+        btn.disabled  = false;
+
+        if (error) {
+            errEl.textContent = 'Email ou mot de passe incorrect.';
+            document.getElementById('login-password').classList.add('error');
+            setTimeout(() => document.getElementById('login-password').classList.remove('error'), 600);
+            return;
+        }
+        _sbUser = data.user;
+        document.getElementById('login-overlay').style.display = 'none';
+        setSyncBadge('online');
+        syncFromSupabase();
+    } else {
+        // Mode local — code simple
+        const code  = document.getElementById('login-code').value;
+        const LOCAL_CODE = '1234'; // Changez ce code dans supabase-config.js si besoin
+        if (code === LOCAL_CODE) {
+            sessionStorage.setItem('sibelec_auth', '1');
+            document.getElementById('login-overlay').style.display = 'none';
+        } else {
+            const input = document.getElementById('login-code');
+            input.classList.add('error');
+            document.getElementById('login-error').textContent = 'Code incorrect. Réessayez.';
+            input.value = '';
+            setTimeout(() => {
+                input.classList.remove('error');
+                document.getElementById('login-error').textContent = '';
+                input.focus();
+            }, 600);
+        }
+    }
+}
+
+async function logoutSupabase() {
+    if (_sb) await _sb.auth.signOut();
+    sessionStorage.removeItem('sibelec_auth');
+    location.reload();
+}
+
+/* Sync depuis Supabase → remplace localStorage */
+async function syncFromSupabase() {
+    if (!_sb || !_sbUser) return;
+    try {
+        // Inventaire
+        const { data: inv } = await _sb.from('inventory').select('*').eq('user_id', _sbUser.id);
+        if (inv && inv.length) {
+            inventory = inv.map(r => ({
+                id: r.id, designation: r.designation, ref: r.ref,
+                unit: r.unit, price: Number(r.price), tva: r.tva,
+                qty: Number(r.qty), seuil: Number(r.seuil)
+            }));
+            localStorage.setItem(SK_INV, JSON.stringify(inventory));
+        }
+        // Devis history
+        const { data: dv } = await _sb.from('devis').select('*').eq('user_id', _sbUser.id).order('created_at', { ascending: false });
+        if (dv) {
+            devisHistory = dv.map(r => ({
+                id: r.id, num: r.num, client_nom: r.client_nom,
+                date_devis: r.date_devis, montant_ttc: Number(r.montant_ttc),
+                montant_ht: Number(r.montant_ht), statut: r.statut || 'en-attente'
+            }));
+            localStorage.setItem(SK_DEVIS_H, JSON.stringify(devisHistory));
+        }
+        // Rappels
+        const { data: rp } = await _sb.from('rappels').select('*').eq('user_id', _sbUser.id);
+        if (rp) {
+            rappelsDB = rp.map(r => ({
+                id: r.id, nom: r.client_nom, devisNum: r.devis_num,
+                note: r.note, ts: new Date(r.scheduled_at).getTime(),
+                done: r.done, createdAt: new Date(r.created_at).getTime()
+            }));
+            localStorage.setItem(SK_RAPPELS, JSON.stringify(rappelsDB));
+            updateRappelsBadge();
+        }
+        // Dépenses
+        const { data: dep } = await _sb.from('depenses').select('*').eq('user_id', _sbUser.id).order('date_depense', { ascending: false });
+        if (dep) {
+            depensesDB = dep.map(r => ({
+                id: r.id, categorie: r.categorie, description: r.description,
+                montant: Number(r.montant), tva_rate: r.tva_rate,
+                date: r.date_depense
+            }));
+            localStorage.setItem(SK_DEPENSES, JSON.stringify(depensesDB));
+        }
+        setSyncBadge('online');
+    } catch(e) {
+        setSyncBadge('offline');
+    }
+}
+
+/* Sauvegarder un devis dans Supabase */
+async function saveDevisToSupabase(devisData) {
+    if (!_sb || !_sbUser) return;
+    try {
+        await _sb.from('devis').upsert({
+            user_id: _sbUser.id,
+            num: devisData.num,
+            client_nom: devisData.nom,
+            client_societe: devisData.societe,
+            client_email: devisData.email,
+            client_tel: devisData.tel,
+            client_adresse: devisData.adresse,
+            client_cp: devisData.cp,
+            client_ville: devisData.ville,
+            chantier: devisData.chantier,
+            montant_ht: devisData.ht,
+            montant_tva10: devisData.tv10,
+            montant_tva20: devisData.tv20,
+            montant_ttc: devisData.ttc,
+            date_devis: devisData.date_devis,
+            date_validite: devisData.date_validite,
+            notes: devisData.notes,
+            conditions_paiement: devisData.paie,
+            lignes: devisData.lignes,
+            statut: 'en-attente'
+        }, { onConflict: 'num,user_id' });
+    } catch(e) { /* Sauvegarde locale uniquement */ }
+}
+
+/* Sauvegarder inventaire dans Supabase */
+async function saveInventoryToSupabase() {
+    if (!_sb || !_sbUser) return;
+    try {
+        // Upsert chaque article
+        await Promise.all(inventory.map(item =>
+            _sb.from('inventory').upsert({
+                id: item.id,
+                user_id: _sbUser.id,
+                designation: item.designation,
+                ref: item.ref || '',
+                unit: item.unit,
+                price: item.price,
+                tva: item.tva,
+                qty: item.qty,
+                seuil: item.seuil
+            })
+        ));
+    } catch(e) { /* Ignore */ }
+}
+
+/* Sauvegarder un rappel dans Supabase */
+async function saveRappelToSupabase(rappel) {
+    if (!_sb || !_sbUser) return;
+    try {
+        await _sb.from('rappels').upsert({
+            id: rappel.id,
+            user_id: _sbUser.id,
+            client_nom: rappel.nom,
+            devis_num: rappel.devisNum,
+            note: rappel.note,
+            scheduled_at: new Date(rappel.ts).toISOString(),
+            done: rappel.done
+        });
+    } catch(e) { /* Ignore */ }
+}
+
+/* Sauvegarder une dépense dans Supabase */
+async function saveDepenseToSupabase(dep) {
+    if (!_sb || !_sbUser) return;
+    try {
+        await _sb.from('depenses').upsert({
+            id: dep.id,
+            user_id: _sbUser.id,
+            categorie: dep.categorie,
+            description: dep.description,
+            montant: dep.montant,
+            tva_rate: dep.tva_rate,
+            date_depense: dep.date
+        });
+    } catch(e) { /* Ignore */ }
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn[id^="nav-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'inventaire') renderInventory();
+    if (name === 'avis')       renderAvis();
+    if (name === 'rappels')    renderRappels();
+    if (name === 'compta')     renderCompta();
+    // Resize signature pad when tab devis becomes visible
+    if (name === 'devis' && sigPad) resizeSigCanvas();
+}
+
+/* ============================================================
+   SIGNATURE PAD
+============================================================ */
+function initSignaturePad() {
+    const canvas = document.getElementById('sig-canvas');
+    if (!canvas || typeof SignaturePad === 'undefined') return;
+    resizeSigCanvas();
+    sigPad = new SignaturePad(canvas, {
+        backgroundColor: 'rgb(250,250,250)',
+        penColor: '#111111',
+        minWidth: 1,
+        maxWidth: 2.5
+    });
+    window.addEventListener('resize', resizeSigCanvas);
+}
+
+function resizeSigCanvas() {
+    const canvas = document.getElementById('sig-canvas');
+    if (!canvas) return;
+    const ratio  = window.devicePixelRatio || 1;
+    const rect   = canvas.getBoundingClientRect();
+    if (rect.width === 0) return; // panel not visible yet
+    canvas.width  = rect.width  * ratio;
+    canvas.height = 110 * ratio;
+    canvas.getContext('2d').scale(ratio, ratio);
+    if (sigPad) sigPad.clear();
+}
+
+function clearSignature() {
+    if (sigPad) sigPad.clear();
+}
+
+function getSignatureDataURL() {
+    if (!sigPad || sigPad.isEmpty()) return null;
+    return sigPad.toDataURL('image/png');
+}
+
+/* ============================================================
+   RAPPELS — LOAD / SAVE / RENDER
+============================================================ */
+function loadRappels() {
+    try {
+        const raw = localStorage.getItem(SK_RAPPELS);
+        rappelsDB = raw ? JSON.parse(raw) : [];
+    } catch { rappelsDB = []; }
+    updateRappelsBadge();
+}
+
+function saveRappels() {
+    localStorage.setItem(SK_RAPPELS, JSON.stringify(rappelsDB));
+    updateRappelsBadge();
+}
+
+function updateRappelsBadge() {
+    const now      = Date.now();
+    const overdue  = rappelsDB.filter(r => !r.done && r.ts < now).length;
+    const badge    = document.getElementById('rappels-badge');
+    if (!badge) return;
+    if (overdue > 0) {
+        badge.textContent = overdue;
+        badge.style.display = 'inline-flex';
+        badge.style.background = 'var(--danger)';
+    } else {
+        const soon = rappelsDB.filter(r => !r.done && r.ts - now < 30*24*3600*1000).length;
+        if (soon > 0) {
+            badge.textContent = soon;
+            badge.style.display = 'inline-flex';
+            badge.style.background = 'var(--orange)';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+function renderRappels() {
+    const now  = Date.now();
+    const list = rappelsDB.filter(r => !r.done).sort((a,b) => a.ts - b.ts);
+
+    const overdue = list.filter(r => r.ts < now).length;
+    const soon    = list.filter(r => r.ts >= now && r.ts - now < 30*24*3600*1000).length;
+    const ok      = list.filter(r => r.ts - now >= 30*24*3600*1000).length;
+
+    setEl('r-overdue', overdue);
+    setEl('r-soon',    soon);
+    setEl('r-ok',      ok);
+
+    const container = document.getElementById('rappels-list');
+    if (!list.length) {
+        container.innerHTML = `<p style="text-align:center;color:var(--slate-light);padding:2rem;">
+            <i class="fa-solid fa-bell-slash" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.75rem;"></i>
+            Aucun rappel programmé.<br>Générez un devis et choisissez "Programmer un rappel".
+        </p>`;
+        return;
+    }
+
+    container.innerHTML = list.map(r => {
+        const diff = r.ts - now;
+        let cls, label;
+        if (diff < 0) {
+            cls = 'overdue';
+            const d = Math.round(-diff / 86400000);
+            label = `En retard de ${d} j`;
+        } else if (diff < 30 * 86400000) {
+            cls = 'soon';
+            const d = Math.round(diff / 86400000);
+            label = `Dans ${d} j`;
+        } else {
+            cls = 'ok';
+            const date = new Date(r.ts);
+            label = date.toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
+        }
+        return `<div class="rappel-card">
+            <div class="rappel-dot ${cls}"></div>
+            <div style="flex:1;">
+                <div class="rappel-nom">${esc(r.nom)}</div>
+                <div class="rappel-meta">${esc(r.note||'')} · Devis ${esc(r.devisNum||'')}</div>
+            </div>
+            <div class="rappel-date ${cls}">${label}</div>
+            <button class="btn btn-sm btn-secondary" style="margin-left:0.75rem;" onclick="archiveRappel('${r.id}')" title="Archiver">
+                <i class="fa-solid fa-check"></i>
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function archiveRappel(id) {
+    const r = rappelsDB.find(x => x.id === id);
+    if (r) { r.done = true; saveRappels(); renderRappels(); toast('Rappel archivé', 'success'); }
+}
+
+function clearDoneRappels() {
+    rappelsDB = rappelsDB.filter(r => !r.done);
+    saveRappels();
+    renderRappels();
+    toast('Rappels archivés supprimés', 'success');
+}
+
+/* Modal de confirmation rappel (affiché après génération PDF) */
+function showRappelModal(nom, devisNum) {
+    _pendingRappel = { nom, devisNum };
+    const sub = document.getElementById('rappel-modal-sub');
+    if (sub) sub.innerHTML = `Souhaitez-vous programmer un rappel d'entretien dans <strong>1 an</strong> pour <strong>${esc(nom)}</strong> ?`;
+    document.getElementById('rappel-modal').classList.add('show');
+}
+
+function dismissRappelModal() {
+    document.getElementById('rappel-modal').classList.remove('show');
+    _pendingRappel = null;
+}
+
+function confirmRappel() {
+    if (!_pendingRappel) return;
+    const { nom, devisNum } = _pendingRappel;
+    const ts = Date.now() + 365 * 24 * 3600 * 1000; // +1 an
+    rappelsDB.push({
+        id: uid(),
+        nom,
+        devisNum,
+        note: 'Rappel entretien annuel',
+        ts,
+        done: false,
+        createdAt: Date.now()
+    });
+    saveRappels();
+    dismissRappelModal();
+    toast(`Rappel programmé pour ${nom} dans 1 an`, 'success');
+}
+
+/* ============================================================
+   AVIS — LOAD / SAVE
+============================================================ */
+function loadAvis() {
+    try {
+        const raw = localStorage.getItem(SK_AVIS);
+        if (raw) {
+            avisDB = JSON.parse(raw);
+        } else {
+            // Seed depuis reviews.js si disponible
+            if (typeof REVIEWS !== 'undefined' && REVIEWS.length) {
+                avisDB = REVIEWS.map(r => ({ ...r, id: r.id || uid() }));
+            } else {
+                avisDB = [];
+            }
+            saveAvisDB();
+        }
+    } catch { avisDB = []; }
+    updateAvisBadge();
+}
+
+function saveAvisDB() {
+    localStorage.setItem(SK_AVIS, JSON.stringify(avisDB));
+    updateAvisBadge();
+}
+
+function updateAvisBadge() {
+    // badge = 0 car pas de pending côté dashboard (tout est validé)
+    const b = document.getElementById('avis-badge');
+    if (b) { b.textContent = '0'; b.classList.remove('visible'); }
+    // Stats
+    setEl('av-total', avisDB.length);
+    if (avisDB.length) {
+        const avg = (avisDB.reduce((s,r)=>s+r.stars,0)/avisDB.length).toFixed(1);
+        setEl('av-avg', avg + ' / 5');
+    } else {
+        setEl('av-avg', '—');
+    }
+    setEl('av-pending', '?');
+}
+
+/* ============================================================
+   AVIS — RENDER TABLE
+============================================================ */
+function renderAvis() {
+    const q     = (document.getElementById('avis-search')?.value || '').toLowerCase();
+    const tbody = document.getElementById('avis-tbody');
+    const empty = document.getElementById('avis-empty');
+
+    updateAvisBadge();
+
+    const filtered = avisDB
+        .filter(a => a.name.toLowerCase().includes(q) || (a.text||'').toLowerCase().includes(q) || (a.city||'').toLowerCase().includes(q))
+        .sort((a,b) => (b.ts||0)-(a.ts||0));
+
+    if (!filtered.length) {
+        if (tbody) tbody.innerHTML = '';
+        if (empty) empty.style.display = 'block';
+        return;
+    }
+
+    if (empty) empty.style.display = 'none';
+
+    const goldStar = (n) => '★'.repeat(n)+'☆'.repeat(5-n);
+
+    tbody.innerHTML = filtered.map(a => `
+        <tr>
+            <td><strong>${esc(a.name)}</strong></td>
+            <td>${esc(a.city||'—')}</td>
+            <td><span style="font-size:0.75rem;background:var(--red-light);color:var(--red);padding:1px 6px;border-radius:4px;font-weight:700;">${esc(a.service||'—')}</span></td>
+            <td style="text-align:center;font-size:0.9rem;color:#f59e0b;letter-spacing:1px;">${goldStar(a.stars)}</td>
+            <td style="max-width:280px;font-size:0.8rem;font-style:italic;color:var(--slate);">${esc((a.text||'').slice(0,90))}${(a.text||'').length>90?'…':''}</td>
+            <td style="font-size:0.78rem;color:var(--slate-light);">${esc(a.date||'—')}</td>
+            <td>
+                <div class="row-actions">
+                    <button class="btn btn-secondary btn-sm btn-ico" onclick="openAvisModal('${a.id}')" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-danger btn-sm btn-ico" onclick="delAvis('${a.id}')" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>`).join('');
+}
+
+/* ============================================================
+   AVIS — CRUD
+============================================================ */
+function openAvisModal(id = null) {
+    setEl('avis-modal-title', id ? 'Modifier l\'avis' : 'Ajouter un avis validé');
+    document.getElementById('avis-id').value = id || '';
+
+    if (id) {
+        const a = avisDB.find(x => x.id === id);
+        if (!a) return;
+        document.getElementById('avis-name').value    = a.name    || '';
+        document.getElementById('avis-city').value    = a.city    || '';
+        document.getElementById('avis-date').value    = a.date    || '';
+        document.getElementById('avis-service').value = a.service || '';
+        document.getElementById('avis-stars').value   = a.stars   || 5;
+        document.getElementById('avis-text').value    = a.text    || '';
+    } else {
+        ['avis-name','avis-city','avis-text'].forEach(i => document.getElementById(i).value = '');
+        document.getElementById('avis-date').value    = new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+        document.getElementById('avis-service').value = '';
+        document.getElementById('avis-stars').value   = '5';
+    }
+
+    openOverlay('avis-overlay');
+    setTimeout(() => document.getElementById('avis-name').focus(), 80);
+}
+
+function saveAvis() {
+    const name    = document.getElementById('avis-name').value.trim();
+    const text    = document.getElementById('avis-text').value.trim();
+    if (!name || !text) { toast('Nom et texte obligatoires', 'error'); return; }
+
+    const data = {
+        name,
+        city:    document.getElementById('avis-city').value.trim(),
+        date:    document.getElementById('avis-date').value.trim(),
+        service: document.getElementById('avis-service').value,
+        stars:   parseInt(document.getElementById('avis-stars').value) || 5,
+        text,
+        ts:      Math.floor(Date.now()/1000)
+    };
+
+    const editId = document.getElementById('avis-id').value;
+    if (editId) {
+        const idx = avisDB.findIndex(a => a.id === editId);
+        if (idx !== -1) avisDB[idx] = { ...avisDB[idx], ...data };
+    } else {
+        avisDB.unshift({ id: 'rv_' + uid(), ...data });
+    }
+
+    saveAvisDB();
+    renderAvis();
+    closeOverlay('avis-overlay');
+    toast(editId ? 'Avis mis à jour' : 'Avis publié avec succès !', 'success');
+}
+
+function delAvis(id) {
+    if (!confirm('Supprimer définitivement cet avis ?')) return;
+    avisDB = avisDB.filter(a => a.id !== id);
+    saveAvisDB();
+    renderAvis();
+    toast('Avis supprimé', 'success');
+}
+
+/* ============================================================
+   AVIS — EXPORT reviews.js
+============================================================ */
+function exportReviews() {
+    const sorted = [...avisDB].sort((a,b) => (b.ts||0)-(a.ts||0));
+
+    const entries = sorted.map((r,i) => {
+        const esc = s => String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+        return `    {
+        id:      "${r.id}",
+        name:    '${esc(r.name)}',
+        city:    '${esc(r.city||'')}',
+        service: '${esc(r.service||'')}',
+        stars:   ${r.stars},
+        text:    '${esc(r.text)}',
+        date:    '${esc(r.date||'')}',
+        ts:      ${r.ts||0}
+    }`;
+    }).join(',\n');
+
+    const code = `/**
+ * ============================================================
+ *  SIB.Elec — Avis clients validés par David SIBOUT
+ *  Généré automatiquement depuis le Dashboard
+ *  le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+ * ============================================================
+ */
+const REVIEWS = [
+${entries}
+];
+`;
+
+    document.getElementById('export-code').value = code;
+    openOverlay('export-overlay');
+}
+
+function copyExport() {
+    const ta = document.getElementById('export-code');
+    ta.select();
+    document.execCommand('copy');
+    toast('Code copié dans le presse-papiers !', 'success');
+}
+
+/* ============================================================
+   INVENTORY — STORAGE
+============================================================ */
+function loadInventory() {
+    try {
+        const raw = localStorage.getItem(SK_INV);
+        inventory = raw ? JSON.parse(raw) : seedInventory();
+    } catch { inventory = seedInventory(); }
+    save();
+}
+
+function save() {
+    localStorage.setItem(SK_INV, JSON.stringify(inventory));
+    updateAlertBadge();
+}
+
+function seedInventory() {
+    return [
+        { id:uid(), designation:'Câble HO7V-R 2,5mm² (rouge)',       ref:'CAB-25-R',  unit:'m',      price:0.85,  tva:20, qty:100, seuil:20 },
+        { id:uid(), designation:'Câble HO7V-R 1,5mm² (bleu)',        ref:'CAB-15-B',  unit:'m',      price:0.65,  tva:20, qty:150, seuil:30 },
+        { id:uid(), designation:'Gaine ICT Ø16mm',                   ref:'GAINE-16',  unit:'m',      price:0.40,  tva:20, qty:200, seuil:50 },
+        { id:uid(), designation:'Prise de courant 2P+T',             ref:'PRI-2PT',   unit:'u',      price:4.50,  tva:20, qty:30,  seuil:10 },
+        { id:uid(), designation:'Interrupteur va-et-vient',          ref:'INT-VV',    unit:'u',      price:3.80,  tva:20, qty:20,  seuil:5  },
+        { id:uid(), designation:'Disjoncteur 16A phase+neutre',      ref:'DIS-16A',   unit:'u',      price:7.50,  tva:20, qty:12,  seuil:4  },
+        { id:uid(), designation:'Disjoncteur 20A phase+neutre',      ref:'DIS-20A',   unit:'u',      price:8.00,  tva:20, qty:8,   seuil:3  },
+        { id:uid(), designation:'Tableau électrique 13 modules',     ref:'TAB-13M',   unit:'u',      price:38.00, tva:20, qty:4,   seuil:2  },
+        { id:uid(), designation:'Plaque de plâtre BA13 (2,5×1,2m)', ref:'BA13-STD',  unit:'u',      price:12.00, tva:10, qty:40,  seuil:10 },
+        { id:uid(), designation:'Rail montant 48mm (3m)',             ref:'RAIL-48',   unit:'u',      price:2.80,  tva:20, qty:25,  seuil:10 },
+        { id:uid(), designation:'Laine de verre 100mm (rouleau)',    ref:'LDV-100',   unit:'rouleau',price:22.00, tva:10, qty:10,  seuil:3  },
+        { id:uid(), designation:'Enduit de finition (sac 25kg)',     ref:'END-FIN',   unit:'sac',    price:18.00, tva:10, qty:15,  seuil:4  },
+        { id:uid(), designation:'Visserie plaquiste T3,5 (boîte 500)',ref:'VIS-PLQ',  unit:'boîte',  price:9.50,  tva:20, qty:0,   seuil:2  },
+        { id:uid(), designation:'Main d\'œuvre électricité',         ref:'MO-ELEC',   unit:'h',      price:45.00, tva:10, qty:999, seuil:0  },
+        { id:uid(), designation:'Main d\'œuvre plaquiste',           ref:'MO-PLQ',    unit:'h',      price:38.00, tva:10, qty:999, seuil:0  },
+    ];
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+/* ============================================================
+   INVENTORY — RENDER
+============================================================ */
+function renderInventory() {
+    const q     = (document.getElementById('inv-search')?.value || '').toLowerCase();
+    const tbody = document.getElementById('inv-tbody');
+    const empty = document.getElementById('inv-empty');
+
+    const filtered = inventory.filter(i =>
+        i.designation.toLowerCase().includes(q) || (i.ref||'').toLowerCase().includes(q)
+    );
+
+    // Stats
+    const nTotal   = inventory.length;
+    const nRupture = inventory.filter(i => i.qty === 0).length;
+    const nAlerte  = inventory.filter(i => i.qty > 0 && i.qty <= i.seuil).length;
+    const nOk      = nTotal - nRupture - nAlerte;
+
+    setEl('s-total',   nTotal);
+    setEl('s-ok',      nOk);
+    setEl('s-alerte',  nAlerte);
+    setEl('s-rupture', nRupture);
+
+    if (!filtered.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+
+    tbody.innerHTML = filtered.map(item => {
+        const isRupt  = item.qty === 0;
+        const isAlert = !isRupt && item.qty <= item.seuil;
+        const rowCls  = isRupt ? 'r-rupture' : isAlert ? 'r-alerte' : '';
+        const badge   = isRupt
+            ? `<span class="stock-badge badge-rupture"><i class="fa-solid fa-triangle-exclamation"></i> RUPTURE</span>`
+            : isAlert
+            ? `<span class="stock-badge badge-alerte"><i class="fa-solid fa-circle-exclamation"></i> ALERTE</span>`
+            : `<span class="stock-badge badge-ok"><i class="fa-solid fa-circle-check"></i> OK</span>`;
+
+        return `<tr class="${rowCls}">
+            <td><strong>${esc(item.designation)}</strong></td>
+            <td><code>${esc(item.ref||'—')}</code></td>
+            <td>${esc(item.unit)}</td>
+            <td>${item.price > 0 ? fmt(item.price)+' €' : '—'}</td>
+            <td>
+                <div class="qty-controls">
+                    <button class="btn-qty" onclick="adjQty('${item.id}',-1)">−</button>
+                    <span class="qty-val">${item.qty}</span>
+                    <button class="btn-qty" onclick="adjQty('${item.id}',1)">+</button>
+                </div>
+            </td>
+            <td>${item.seuil}</td>
+            <td>${badge}</td>
+            <td>
+                <div class="row-actions">
+                    <button class="btn btn-secondary btn-sm btn-ico" onclick="openItemModal('${item.id}')" title="Modifier">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm btn-ico" onclick="delItem('${item.id}')" title="Supprimer">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+/* ============================================================
+   INVENTORY — CRUD
+============================================================ */
+function adjQty(id, delta) {
+    const item = inventory.find(i => i.id === id);
+    if (!item) return;
+    item.qty = Math.max(0, item.qty + delta);
+    save();
+    renderInventory();
+}
+
+function delItem(id) {
+    if (!confirm('Supprimer cet article de l\'inventaire ?')) return;
+    inventory = inventory.filter(i => i.id !== id);
+    save();
+    renderInventory();
+    toast('Article supprimé', 'success');
+}
+
+function openItemModal(id = null) {
+    setEl('item-modal-title', id ? 'Modifier l\'article' : 'Ajouter un article');
+    document.getElementById('item-id').value = id || '';
+
+    if (id) {
+        const item = inventory.find(i => i.id === id);
+        if (!item) return;
+        document.getElementById('item-designation').value = item.designation;
+        document.getElementById('item-ref').value         = item.ref || '';
+        document.getElementById('item-unit').value        = item.unit;
+        document.getElementById('item-price').value       = item.price;
+        document.getElementById('item-tva').value         = item.tva;
+        document.getElementById('item-qty').value         = item.qty;
+        document.getElementById('item-seuil').value       = item.seuil;
+    } else {
+        ['item-designation','item-ref','item-price','item-qty'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('item-unit').value  = 'u';
+        document.getElementById('item-tva').value   = '20';
+        document.getElementById('item-seuil').value = '5';
+    }
+
+    openOverlay('item-overlay');
+    setTimeout(() => document.getElementById('item-designation').focus(), 80);
+}
+
+function saveItem() {
+    const designation = document.getElementById('item-designation').value.trim();
+    if (!designation) { toast('La désignation est obligatoire', 'error'); return; }
+
+    const data = {
+        designation,
+        ref:   document.getElementById('item-ref').value.trim(),
+        unit:  document.getElementById('item-unit').value,
+        price: parseFloat(document.getElementById('item-price').value)  || 0,
+        tva:   parseInt(document.getElementById('item-tva').value)       || 20,
+        qty:   parseInt(document.getElementById('item-qty').value)       || 0,
+        seuil: parseInt(document.getElementById('item-seuil').value)     || 5,
+    };
+
+    const editId = document.getElementById('item-id').value;
+    if (editId) {
+        Object.assign(inventory.find(i => i.id === editId), data);
+    } else {
+        inventory.push({ id: uid(), ...data });
+    }
+
+    save();
+    renderInventory();
+    closeOverlay('item-overlay');
+    toast(editId ? 'Article mis à jour' : 'Article ajouté', 'success');
+}
+
+function updateAlertBadge() {
+    const n = inventory.filter(i => i.qty <= i.seuil).length;
+    const b = document.getElementById('alert-badge');
+    if (!b) return;
+    b.textContent = n;
+    b.classList.toggle('visible', n > 0);
+}
+
+/* ============================================================
+   PICKER (inventaire → devis)
+============================================================ */
+function openPicker() {
+    document.getElementById('picker-search').value = '';
+    renderPickerList();
+    openOverlay('picker-overlay');
+}
+
+function renderPickerList() {
+    const q    = document.getElementById('picker-search').value.toLowerCase();
+    const list = document.getElementById('picker-list');
+
+    const fil = inventory.filter(i =>
+        i.designation.toLowerCase().includes(q) || (i.ref||'').toLowerCase().includes(q)
+    );
+
+    if (!fil.length) {
+        list.innerHTML = '<p style="text-align:center;color:var(--slate-light);padding:2rem;">Aucun article trouvé</p>';
+        return;
+    }
+
+    list.innerHTML = fil.map(item => {
+        const isRupt = item.qty === 0;
+        const stockLine = isRupt
+            ? `<span style="color:var(--danger);font-size:0.72rem;"><i class="fa-solid fa-triangle-exclamation"></i> Rupture de stock</span>`
+            : item.qty <= item.seuil
+            ? `<span style="color:var(--orange);font-size:0.72rem;"><i class="fa-solid fa-circle-exclamation"></i> Alerte — ${item.qty} ${item.unit}</span>`
+            : `<span style="color:var(--green);font-size:0.72rem;"><i class="fa-solid fa-circle-check"></i> En stock — ${item.qty} ${item.unit}</span>`;
+
+        return `<div class="picker-item${isRupt?' rupt':''}"
+                     onclick="${isRupt ? '' : `pickItem('${item.id}')`}"
+                     title="${isRupt?'Rupture de stock — non disponible':'Cliquer pour ajouter au devis'}">
+            <div>
+                <div class="pi-name">${esc(item.designation)}</div>
+                <div class="pi-ref">${item.ref ? esc(item.ref)+' · ':''} ${item.unit}</div>
+                <div style="margin-top:3px;">${stockLine}</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="pi-price">${item.price > 0 ? fmt(item.price)+' €' : '—'}</div>
+                <div class="pi-stock">par ${item.unit}</div>
+                ${!isRupt ? '<div style="margin-top:5px;"><span style="background:var(--red);color:white;border-radius:4px;padding:2px 10px;font-size:0.7rem;font-weight:700;">+ Ajouter</span></div>' : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function pickItem(id) {
+    const item = inventory.find(i => i.id === id);
+    if (!item) return;
+    addLigne({ description: item.designation, qty: 1, unit: item.unit, pu: item.price, tva: item.tva });
+    closeOverlay('picker-overlay');
+
+    // Flash the table
+    const tbl = document.querySelector('.lignes-table');
+    if (tbl) { tbl.style.outline = '2px solid var(--red)'; setTimeout(()=>tbl.style.outline='',700); }
+    toast('Article ajouté au devis', 'success');
+}
+
+/* ============================================================
+   DEVIS — INIT
+============================================================ */
+function initDevis() {
+    const today = new Date();
+    document.getElementById('devis-date').value = toDateStr(today);
+    const v = new Date(today); v.setDate(v.getDate() + 30);
+    document.getElementById('devis-validity').value = toDateStr(v);
+    setEl('devis-num-display', genNum());
+
+    // 3 empty lines by default
+    addLigne(); addLigne(); addLigne();
+}
+
+function genNum() {
+    const d   = new Date();
+    const pre = 'DEV-' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + '-';
+    const seq = (parseInt(localStorage.getItem(SK_SEQ) || '0') + 1);
+    localStorage.setItem(SK_SEQ, seq);
+    return pre + String(seq).padStart(3,'0');
+}
+
+function toDateStr(d) { return d.toISOString().split('T')[0]; }
+
+function resetDevis() {
+    if (!confirm('Réinitialiser le devis ? Toutes les données du formulaire seront perdues.')) return;
+    lignes = [];
+    ['c-nom','c-societe','c-adresse','c-cp','c-ville','c-tel','c-email','c-chantier','d-notes'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    setEl('devis-num-display', genNum());
+    const today = new Date();
+    document.getElementById('devis-date').value = toDateStr(today);
+    const v = new Date(today); v.setDate(v.getDate()+30);
+    document.getElementById('devis-validity').value = toDateStr(v);
+    addLigne(); addLigne(); addLigne();
+    toast('Devis réinitialisé', '');
+}
+
+/* ============================================================
+   DEVIS — LIGNES
+============================================================ */
+const UNITS  = ['h','m','m²','u','forfait','kg','boîte','rouleau','sac'];
+const TVA_OPT = [0, 10, 20];
+
+function addLigne(data = {}) {
+    const id = uid();
+    lignes.push({ id, description:'', qty:'', unit:'h', pu:'', tva:10, ...data });
+    renderLignes();
+    // Focus last description
+    setTimeout(() => {
+        const rows = document.querySelectorAll('#lignes-body .desc-inp');
+        if (rows.length) rows[rows.length-1].focus();
+    }, 40);
+}
+
+function removeLigne(id) {
+    lignes = lignes.filter(l => l.id !== id);
+    renderLignes();
+}
+
+// Called on change of a non-numeric field (description, unit, tva)
+function setLigneField(id, field, value) {
+    const l = lignes.find(l => l.id === id);
+    if (!l) return;
+    l[field] = value;
+    if (field === 'tva') recalc();
+}
+
+// Called on input of numeric field (qty, pu) — updates total cell without re-render
+function setLigneNum(id, field, value) {
+    const l = lignes.find(l => l.id === id);
+    if (!l) return;
+    l[field] = value;
+    const lineHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+    const el = document.getElementById('lt-'+id);
+    if (el) el.textContent = lineHT > 0 ? fmt(lineHT)+' €' : '—';
+    recalc();
+}
+
+function renderLignes() {
+    const tbody = document.getElementById('lignes-body');
+
+    tbody.innerHTML = lignes.map(l => {
+        const unitOpts = UNITS.map(u =>
+            `<option value="${u}"${l.unit===u?' selected':''}>${u}</option>`
+        ).join('');
+        const tvaOpts = TVA_OPT.map(t =>
+            `<option value="${t}"${(+l.tva)===t?' selected':''}>${t}%</option>`
+        ).join('');
+        const lineHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+        const totalStr = lineHT > 0 ? fmt(lineHT)+' €' : '—';
+
+        return `<tr>
+            <td class="th-desc">
+                <input class="desc-inp" type="text" value="${esc(l.description)}" placeholder="Description de la prestation"
+                    onchange="setLigneField('${l.id}','description',this.value)">
+            </td>
+            <td class="th-qty">
+                <input type="number" value="${l.qty}" min="0" step="0.01" placeholder="1"
+                    style="text-align:center;"
+                    oninput="setLigneNum('${l.id}','qty',this.value)">
+            </td>
+            <td class="th-unit">
+                <select onchange="setLigneField('${l.id}','unit',this.value)">${unitOpts}</select>
+            </td>
+            <td class="th-pu">
+                <input type="number" value="${l.pu}" min="0" step="0.01" placeholder="0,00"
+                    oninput="setLigneNum('${l.id}','pu',this.value)">
+            </td>
+            <td class="th-tva" style="text-align:center;">
+                <select onchange="setLigneField('${l.id}','tva',+this.value)">${tvaOpts}</select>
+            </td>
+            <td class="td-total" id="lt-${l.id}">${totalStr}</td>
+            <td class="th-del" style="text-align:center;">
+                <button class="btn btn-danger btn-sm btn-ico" onclick="removeLigne('${l.id}')" title="Supprimer">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    recalc();
+}
+
+/* ============================================================
+   DEVIS — CALCULS
+============================================================ */
+function recalc() {
+    let ht=0, tv10=0, tv20=0;
+    lignes.forEach(l => {
+        const lHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+        ht += lHT;
+        if (+l.tva === 10) tv10 += lHT * 0.10;
+        if (+l.tva === 20) tv20 += lHT * 0.20;
+    });
+    const ttc = ht + tv10 + tv20;
+    setEl('t-ht',    fmt(ht)   +' €');
+    setEl('t-tva10', fmt(tv10) +' €');
+    setEl('t-tva20', fmt(tv20) +' €');
+    setEl('t-ttc',   fmt(ttc)  +' €');
+}
+
+/* ============================================================
+   PDF GENERATION
+============================================================ */
+/* ============================================================
+   DEVIS HISTORY (Compta)
+============================================================ */
+function loadDevisHistory() {
+    try {
+        const raw = localStorage.getItem(SK_DEVIS_H);
+        devisHistory = raw ? JSON.parse(raw) : [];
+    } catch { devisHistory = []; }
+}
+
+function saveDevisHistory() {
+    localStorage.setItem(SK_DEVIS_H, JSON.stringify(devisHistory));
+}
+
+function addToDevisHistory(devisData) {
+    const existing = devisHistory.findIndex(d => d.num === devisData.num);
+    const entry = {
+        id: devisData.num,
+        num: devisData.num,
+        client_nom: devisData.nom,
+        date_devis: devisData.date_devis,
+        montant_ht: devisData.ht,
+        montant_ttc: devisData.ttc,
+        statut: 'en-attente'
+    };
+    if (existing >= 0) devisHistory[existing] = entry;
+    else devisHistory.unshift(entry);
+    saveDevisHistory();
+    if (_sbMode) saveDevisToSupabase(devisData);
+}
+
+function updateDevisStatut(num, statut) {
+    const d = devisHistory.find(x => x.num === num);
+    if (!d) return;
+    d.statut = statut;
+    saveDevisHistory();
+    renderComptaTable();
+    toast('Statut mis à jour', 'success');
+    if (_sb && _sbUser) {
+        _sb.from('devis').update({ statut }).eq('num', num).eq('user_id', _sbUser.id);
+    }
+}
+
+/* ============================================================
+   DÉPENSES
+============================================================ */
+function loadDepenses() {
+    try {
+        const raw = localStorage.getItem(SK_DEPENSES);
+        depensesDB = raw ? JSON.parse(raw) : [];
+    } catch { depensesDB = []; }
+}
+
+function saveDepenses() {
+    localStorage.setItem(SK_DEPENSES, JSON.stringify(depensesDB));
+}
+
+function saveDepense() {
+    const cat  = document.getElementById('dep-categorie').value;
+    const date = document.getElementById('dep-date').value;
+    const desc = document.getElementById('dep-description').value.trim();
+    const mont = parseFloat(document.getElementById('dep-montant').value) || 0;
+    const tva  = parseInt(document.getElementById('dep-tva').value) || 20;
+
+    if (!desc || mont <= 0) { toast('Complétez la description et le montant', 'error'); return; }
+
+    const dep = { id: uid(), categorie: cat, description: desc, montant: mont, tva_rate: tva, date: date || new Date().toISOString().slice(0,10) };
+    depensesDB.unshift(dep);
+    saveDepenses();
+    closeOverlay('depense-overlay');
+    renderCompta();
+    toast('Dépense enregistrée', 'success');
+    if (_sbMode) saveDepenseToSupabase(dep);
+}
+
+function deleteDepense(id) {
+    if (!confirm('Supprimer cette dépense ?')) return;
+    depensesDB = depensesDB.filter(d => d.id !== id);
+    saveDepenses();
+    renderCompta();
+}
+
+/* ============================================================
+   COMPTA — RENDER
+============================================================ */
+function initComptaYears() {
+    const sel = document.getElementById('ca-filter-year');
+    if (!sel) return;
+    const cur = new Date().getFullYear();
+    sel.innerHTML = '';
+    for (let y = cur; y >= cur - 4; y--) {
+        const o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        sel.appendChild(o);
+    }
+}
+
+function renderCompta() {
+    const year  = parseInt(document.getElementById('ca-filter-year')?.value  || new Date().getFullYear());
+    const month = parseInt(document.getElementById('ca-filter-month')?.value || 0);
+
+    // Filtrer devis acceptés
+    const acceptes = devisHistory.filter(d => {
+        if (d.statut !== 'accepte') return false;
+        if (!d.date_devis) return true;
+        const [y, m] = d.date_devis.split('-').map(Number);
+        if (y !== year) return false;
+        if (month && m !== month) return false;
+        return true;
+    });
+
+    const caHT  = acceptes.reduce((s, d) => s + (d.montant_ht  || 0), 0);
+    const caTTC = acceptes.reduce((s, d) => s + (d.montant_ttc || 0), 0);
+
+    // Filtrer dépenses
+    const depFilt = depensesDB.filter(d => {
+        if (!d.date) return true;
+        const [y, m] = d.date.split('-').map(Number);
+        if (y !== year) return false;
+        if (month && m !== month) return false;
+        return true;
+    });
+    const totalDep = depFilt.reduce((s, d) => s + (d.montant || 0), 0);
+
+    setEl('ca-ht',           fmtEur(caHT));
+    setEl('ca-ttc',          fmtEur(caTTC));
+    setEl('ca-nb-devis',     acceptes.length);
+    setEl('ca-depenses-total', fmtEur(totalDep));
+    setEl('ca-resultat',     fmtEur(caHT - totalDep));
+
+    renderComptaTable(year, month);
+    renderDepenses(depFilt);
+}
+
+function renderComptaTable(year, month) {
+    year  = year  || parseInt(document.getElementById('ca-filter-year')?.value  || new Date().getFullYear());
+    month = month || parseInt(document.getElementById('ca-filter-month')?.value || 0);
+
+    const tbody = document.getElementById('devis-history-tbody');
+    if (!tbody) return;
+
+    const filt = devisHistory.filter(d => {
+        if (!d.date_devis) return true;
+        const [y, m] = d.date_devis.split('-').map(Number);
+        if (y !== year) return false;
+        if (month && m !== month) return false;
+        return true;
+    });
+
+    if (!filt.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--slate-light);">Aucun devis pour cette période</td></tr>';
+        return;
+    }
+
+    const opts = ['en-attente','accepte','refuse'];
+    const labels = { 'en-attente':'En attente','accepte':'Accepté','refuse':'Refusé' };
+
+    tbody.innerHTML = filt.map(d => {
+        const dateStr = d.date_devis ? d.date_devis.split('-').reverse().join('/') : '—';
+        const statSel = opts.map(o =>
+            `<option value="${o}" ${d.statut===o?'selected':''}>${labels[o]}</option>`
+        ).join('');
+
+        return `<tr>
+            <td><strong>${esc(d.num)}</strong></td>
+            <td>${esc(d.client_nom)}</td>
+            <td>${dateStr}</td>
+            <td style="text-align:right;font-weight:700;">${fmtEur(d.montant_ttc)}</td>
+            <td style="text-align:center;">
+                <select onchange="updateDevisStatut('${d.num}',this.value)"
+                    style="border:none;border-radius:6px;padding:0.2rem 0.5rem;font-size:0.75rem;font-weight:700;cursor:pointer;
+                    background:${d.statut==='accepte'?'var(--green-light)':d.statut==='refuse'?'var(--danger-light)':'var(--orange-light)'};
+                    color:${d.statut==='accepte'?'var(--green)':d.statut==='refuse'?'var(--danger)':'var(--orange)'};">
+                    ${statSel}
+                </select>
+            </td>
+            <td style="text-align:center;">
+                <button class="btn btn-danger btn-sm btn-ico" onclick="removeDevisHistory('${d.num}')" title="Supprimer">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function removeDevisHistory(num) {
+    if (!confirm('Supprimer ce devis de l\'historique ?')) return;
+    devisHistory = devisHistory.filter(d => d.num !== num);
+    saveDevisHistory();
+    renderCompta();
+}
+
+function renderDepenses(list) {
+    const container = document.getElementById('depenses-list');
+    if (!container) return;
+    if (!list.length) {
+        container.innerHTML = '<p style="text-align:center;color:var(--slate-light);padding:1rem;">Aucune dépense pour cette période</p>';
+        return;
+    }
+    const catLabels = {
+        'materiel':'Matériel','carburant':'Carburant','outillage':'Outillage',
+        'assurance':'Assurance','formation':'Formation','frais-bureau':'Bureau',
+        'sous-traitance':'Sous-traitance','autre':'Autre'
+    };
+    container.innerHTML = list.map(d =>
+        `<div class="depense-row">
+            <span class="depense-cat">${catLabels[d.categorie]||d.categorie}</span>
+            <span style="flex:1;color:var(--navy);">${esc(d.description)}</span>
+            <span style="font-size:0.78rem;color:var(--slate-light);">${d.date ? d.date.split('-').reverse().join('/') : '—'}</span>
+            <span style="font-weight:700;color:var(--navy);min-width:70px;text-align:right;">${fmtEur(d.montant)}</span>
+            <button class="btn btn-danger btn-sm btn-ico" onclick="deleteDepense('${d.id}')" title="Supprimer" style="margin-left:0.5rem;">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </div>`
+    ).join('');
+}
+
+function fmtEur(n) {
+    return Number(n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+}
+
+/* ============================================================
+   RECHERCHE DEVIS / CLIENTS
+============================================================ */
+function searchDevis(q) {
+    const box = document.getElementById('search-results');
+    if (!q || q.length < 2) { box.style.display = 'none'; return; }
+
+    const term = q.toLowerCase();
+    const results = devisHistory.filter(d =>
+        (d.client_nom || '').toLowerCase().includes(term) ||
+        (d.num        || '').toLowerCase().includes(term) ||
+        (d.client_ville|| '').toLowerCase().includes(term)
+    ).slice(0, 8);
+
+    if (!results.length) {
+        box.style.display = 'block';
+        box.innerHTML = '<p style="padding:0.75rem 1rem;color:var(--slate-light);font-size:0.85rem;">Aucun résultat</p>';
+        return;
+    }
+
+    const statBg = { 'en-attente':'var(--orange)','accepte':'var(--green)','refuse':'var(--danger)' };
+    const statLbl = { 'en-attente':'En attente','accepte':'Accepté','refuse':'Refusé' };
+
+    box.style.display = 'block';
+    box.innerHTML = results.map(d => `
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;"
+             onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''"
+             onclick="loadDevisFromHistory('${d.num}')">
+            <div style="flex:1;">
+                <div style="font-weight:700;font-size:0.88rem;color:var(--navy);">${esc(d.client_nom)}</div>
+                <div style="font-size:0.75rem;color:var(--slate-light);">${esc(d.num)} · ${d.date_devis ? d.date_devis.split('-').reverse().join('/') : '—'}</div>
+            </div>
+            <div style="font-weight:700;font-size:0.85rem;">${fmtEur(d.montant_ttc)}</div>
+            <div style="background:${statBg[d.statut]||'var(--slate)'};color:white;border-radius:4px;padding:0.15rem 0.5rem;font-size:0.68rem;font-weight:700;">
+                ${statLbl[d.statut]||d.statut}
+            </div>
+        </div>`
+    ).join('') + `<div style="padding:0.5rem 1rem;font-size:0.72rem;color:var(--slate-light);text-align:center;">
+        ${results.length} résultat${results.length>1?'s':''}
+    </div>`;
+}
+
+function loadDevisFromHistory(num) {
+    // Fermer les résultats de recherche
+    document.getElementById('search-results').style.display = 'none';
+    document.getElementById('devis-search').value = '';
+    // Basculer sur l'onglet compta avec ce numéro mis en évidence
+    switchTab('compta');
+    setTimeout(() => {
+        const tbody = document.getElementById('devis-history-tbody');
+        if (tbody) {
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(r => {
+                if (r.textContent.includes(num)) {
+                    r.style.background = 'var(--red-light)';
+                    r.scrollIntoView({ behavior:'smooth', block:'center' });
+                    setTimeout(() => r.style.background = '', 1800);
+                }
+            });
+        }
+    }, 200);
+}
+
+/* ============================================================
+   PARTAGER LE DEVIS (lien client)
+============================================================ */
+function shareDevis() {
+    const nom     = document.getElementById('c-nom').value.trim();
+    if (!nom) { toast('Remplissez d\'abord le nom du client', 'error'); return; }
+
+    const actives = lignes.filter(l => l.description && (parseFloat(l.qty)||0)>0 && (parseFloat(l.pu)||0)>0);
+    if (!actives.length) { toast('Ajoutez au moins une prestation', 'error'); return; }
+
+    let ht=0, tv10=0, tv20=0;
+    actives.forEach(l => {
+        const lHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+        ht += lHT;
+        if (+l.tva===10) tv10 += lHT * 0.10;
+        if (+l.tva===20) tv20 += lHT * 0.20;
+    });
+
+    const dNum = document.getElementById('devis-num-display').textContent;
+    const dDate = document.getElementById('devis-date').value;
+    const dVal  = document.getElementById('devis-validity').value;
+
+    const payload = {
+        num:      dNum,
+        nom,
+        societe:  document.getElementById('c-societe').value.trim(),
+        adresse:  document.getElementById('c-adresse').value.trim(),
+        cp:       document.getElementById('c-cp').value.trim(),
+        ville:    document.getElementById('c-ville').value.trim(),
+        tel:      document.getElementById('c-tel').value.trim(),
+        email:    document.getElementById('c-email').value.trim(),
+        chantier: document.getElementById('c-chantier').value.trim(),
+        date:     dDate ? dDate.split('-').reverse().join('/') : new Date().toLocaleDateString('fr-FR'),
+        validity: dVal  ? dVal.split('-').reverse().join('/')  : '—',
+        lignes:   actives,
+        ht, tv10, tv20,
+        notes: document.getElementById('d-notes').value.trim(),
+        paie:  document.getElementById('d-paiement').value
+    };
+
+    const hash = encodeURIComponent(btoa(JSON.stringify(payload)));
+    const base = window.location.href.replace(/dashboard\.html.*$/, '');
+    const url  = `${base}devis-client.html#${hash}`;
+
+    // Copier dans le presse-papiers
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+            toast('Lien copié ! Envoyez-le à votre client.', 'success');
+        });
+    } else {
+        // Fallback: ouvrir le lien
+        window.open(url, '_blank');
+        toast('Lien ouvert dans une nouvelle fenêtre', 'success');
+    }
+}
+
+async function generatePDF() {
+    const nom     = document.getElementById('c-nom').value.trim();
+    const societe = document.getElementById('c-societe').value.trim();
+    const adresse = document.getElementById('c-adresse').value.trim();
+    const cp      = document.getElementById('c-cp').value.trim();
+    const ville   = document.getElementById('c-ville').value.trim();
+    const tel     = document.getElementById('c-tel').value.trim();
+    const email   = document.getElementById('c-email').value.trim();
+    const chantier= document.getElementById('c-chantier').value.trim();
+    const dDate   = document.getElementById('devis-date').value;
+    const dVal    = document.getElementById('devis-validity').value;
+    const dNum    = document.getElementById('devis-num-display').textContent;
+    const notes   = document.getElementById('d-notes').value.trim();
+    const paie    = document.getElementById('d-paiement').value;
+
+    if (!nom) {
+        toast('Veuillez saisir le nom du client', 'error');
+        document.getElementById('c-nom').focus();
+        return;
+    }
+
+    const actives = lignes.filter(l => l.description && (parseFloat(l.qty)||0)>0 && (parseFloat(l.pu)||0)>0);
+    if (!actives.length) {
+        toast('Ajoutez au moins une prestation avec quantité et prix', 'error');
+        return;
+    }
+
+    let ht=0, tv10=0, tv20=0;
+    actives.forEach(l => {
+        const lHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+        ht += lHT;
+        if (+l.tva===10) tv10 += lHT * 0.10;
+        if (+l.tva===20) tv20 += lHT * 0.20;
+    });
+    const ttc = ht + tv10 + tv20;
+
+    // Capturer la signature avant tout traitement asynchrone
+    const sigDataURL = getSignatureDataURL();
+
+    // Charger le logo en base64 via fetch (fonctionne en file:// et http://)
+    let logoHTML = `<div style="font-size:20pt;font-weight:900;color:#111;letter-spacing:-1pt;">SIB<span style="color:#d41f1f;">.</span>Elec</div>
+                    <div style="font-size:7pt;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-top:3pt;">Artisan multi-métiers du bâtiment</div>`;
+    try {
+        const resp = await fetch('SIB-logo.png');
+        if (resp.ok) {
+            const blob = await resp.blob();
+            const b64  = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload  = e => resolve(e.target.result);
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(blob);
+            });
+            if (b64) logoHTML = `<img src="${b64}" alt="SIB.Elec" style="height:55pt;width:auto;border-radius:4pt;display:block;">`;
+        }
+    } catch(e) { /* Logo texte si fetch échoue */ }
+
+    const addrLine = [adresse, [cp, ville].filter(Boolean).join(' ')].filter(Boolean).join('<br>');
+    const ctcLine  = [tel, email].filter(Boolean).join(' · ');
+    const frDate   = dDate ? dDate.split('-').reverse().join('/') : new Date().toLocaleDateString('fr-FR');
+    const frVal    = dVal  ? dVal.split('-').reverse().join('/')  : '—';
+    const fileDate = frDate.replace(/\//g, '-');
+
+    const rowsHTML = actives.map((l, i) => {
+        const lHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+        const bg  = i % 2 === 1 ? 'background:#fafafa;' : '';
+        return `<tr>
+            <td style="padding:5pt 6pt;border-bottom:0.5pt solid #eee;${bg}">${esc(l.description)}</td>
+            <td style="padding:5pt 6pt;border-bottom:0.5pt solid #eee;text-align:center;${bg}">${l.qty}</td>
+            <td style="padding:5pt 6pt;border-bottom:0.5pt solid #eee;text-align:center;${bg}">${esc(l.unit||'')}</td>
+            <td style="padding:5pt 6pt;border-bottom:0.5pt solid #eee;text-align:right;${bg}">${fmt(parseFloat(l.pu)||0)} €</td>
+            <td style="padding:5pt 6pt;border-bottom:0.5pt solid #eee;text-align:center;${bg}">${l.tva||10}%</td>
+            <td style="padding:5pt 6pt;border-bottom:0.5pt solid #eee;text-align:right;font-weight:700;${bg}">${fmt(lHT)} €</td>
+        </tr>`;
+    }).join('');
+
+    const printDoc = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Devis-${esc(nom).replace(/\s+/g,'-')}-${fileDate}</title>
+<style>
+  @page { margin:12mm 10mm; size:A4 portrait; }
+  *  { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.5pt;
+    color: #333;
+    line-height: 1.5;
+    background: white;
+  }
+
+  /* En-tête */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 5mm;
+    border-bottom: 3pt solid #d41f1f;
+    margin-bottom: 5mm;
+  }
+  .artisan { text-align:right; font-size:8.5pt; color:#555; line-height:1.7; }
+  .artisan strong { color:#111; }
+
+  /* Titre DEVIS */
+  .title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5mm;
+  }
+  .devis-title { font-size:26pt; font-weight:900; color:#d41f1f; letter-spacing:-1pt; line-height:1; }
+  .devis-num   { font-size:8pt; color:#aaa; margin-top:2pt; }
+  .dates       { text-align:right; font-size:8.5pt; color:#555; line-height:1.9; }
+
+  /* Blocs émetteur / client */
+  .parties     { display:flex; gap:5mm; margin-bottom:5mm; }
+  .party       { flex:1; background:#f7f7f7; border-radius:4pt; padding:4mm 5mm; }
+  .party-lbl   { font-size:6pt; text-transform:uppercase; letter-spacing:0.1em; color:#bbb; font-weight:700; margin-bottom:2pt; }
+  .party-name  { font-size:10pt; font-weight:700; color:#111; margin-bottom:2pt; }
+  .party-info  { font-size:8pt; color:#666; line-height:1.6; }
+
+  /* Tableau prestations */
+  table        { width:100%; border-collapse:collapse; margin-bottom:4mm; font-size:8.5pt; }
+  thead tr     { background:#1c1c1c; color:white; }
+  thead th     { padding:3pt 6pt; text-align:left; font-size:7.5pt; font-weight:600; }
+  tbody td     { padding:4pt 6pt; border-bottom:0.5pt solid #eee; vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+
+  /* Totaux */
+  .totaux      { display:flex; justify-content:flex-end; margin-bottom:5mm; }
+  .tot-box     { width:64mm; border:1pt solid #e0e0e0; border-radius:4pt; overflow:hidden; }
+  .trow        { display:flex; justify-content:space-between; padding:2.5pt 5pt; font-size:8.5pt; color:#555; border-bottom:0.5pt solid #eee; }
+  .trow:last-child { border-bottom:none; }
+  .trow.ttc    { background:#1c1c1c; color:white; font-size:11pt; font-weight:900; padding:3.5pt 5pt; }
+
+  /* Notes */
+  .sec-label   { font-size:6pt; text-transform:uppercase; letter-spacing:0.1em; color:#bbb; font-weight:700; margin-bottom:2pt; margin-top:4mm; }
+  .sec-body    { font-size:8pt; color:#555; line-height:1.6; margin-bottom:3mm; }
+
+  /* Signatures */
+  .sigs        { display:flex; gap:5mm; margin-top:4mm; margin-bottom:5mm; }
+  .sig         { flex:1; border:0.8pt solid #ddd; border-radius:3pt; padding:3mm 4mm; min-height:24mm; }
+  .sig-lbl     { font-size:7pt; color:#aaa; font-weight:600; }
+  .sig-date    { font-size:7pt; color:#ccc; margin-top:3mm; }
+
+  /* Pied de page */
+  .footer      { border-top:0.8pt solid #eee; padding-top:3mm; font-size:7pt; color:#bbb; text-align:center; line-height:1.7; }
+
+  /* Garantir les couleurs à l'impression */
+  @media print {
+    body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    thead tr { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .trow.ttc { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>${logoHTML}</div>
+  <div class="artisan">
+    <strong>David SIBOUT</strong><br>
+    613 Chemin du Rondel<br>
+    14100 FIRFOL<br>
+    06 69 76 22 04<br>
+    siboutrenov@gmail.com
+  </div>
+</div>
+
+<div class="title-row">
+  <div>
+    <div class="devis-title">DEVIS</div>
+    <div class="devis-num">N° ${dNum}</div>
+  </div>
+  <div class="dates">
+    <strong>Date&nbsp;:</strong> ${frDate}<br>
+    <strong>Valable jusqu'au&nbsp;:</strong> ${frVal}
+  </div>
+</div>
+
+<div class="parties">
+  <div class="party">
+    <div class="party-lbl">Émetteur</div>
+    <div class="party-name">SIB.Elec</div>
+    <div class="party-info">
+      David SIBOUT<br>
+      613 Chemin du Rondel — 14100 FIRFOL<br>
+      06 69 76 22 04 · siboutrenov@gmail.com
+    </div>
+  </div>
+  <div class="party">
+    <div class="party-lbl">Client</div>
+    <div class="party-name">${esc(nom)}${societe ? ' — '+esc(societe) : ''}</div>
+    <div class="party-info">
+      ${addrLine || ''}
+      ${ctcLine  ? '<br>'+esc(ctcLine) : ''}
+      ${chantier ? '<br><strong>Chantier&nbsp;:</strong> '+esc(chantier) : ''}
+    </div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:42%">Désignation / Description</th>
+      <th style="width:8%;text-align:center;">Qté</th>
+      <th style="width:8%;text-align:center;">Unité</th>
+      <th style="width:14%;text-align:right;">P.U. HT</th>
+      <th style="width:8%;text-align:center;">TVA</th>
+      <th style="width:20%;text-align:right;">Total HT</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${rowsHTML}
+  </tbody>
+</table>
+
+<div class="totaux">
+  <div class="tot-box">
+    <div class="trow"><span>Total HT</span><span>${fmt(ht)} €</span></div>
+    ${tv10>0?`<div class="trow"><span>TVA 10%</span><span>${fmt(tv10)} €</span></div>`:''}
+    ${tv20>0?`<div class="trow"><span>TVA 20%</span><span>${fmt(tv20)} €</span></div>`:''}
+    <div class="trow ttc"><span>TOTAL TTC</span><span>${fmt(ttc)} €</span></div>
+  </div>
+</div>
+
+${notes ? `<div class="sec-label">Notes</div><div class="sec-body">${esc(notes).replace(/\n/g,'<br>')}</div>` : ''}
+<div class="sec-label">Conditions de paiement</div>
+<div class="sec-body">${esc(paie)}</div>
+
+<div class="sigs">
+  <div class="sig">
+    <div class="sig-lbl">Bon pour accord — Signature du client précédée de "Lu et approuvé"</div>
+    ${sigDataURL
+        ? `<img src="${sigDataURL}" style="max-height:40mm;max-width:100%;margin-top:3mm;display:block;">`
+        : '<div class="sig-date">Date :</div>'}
+  </div>
+  <div class="sig">
+    <div class="sig-lbl">Cachet &amp; Signature SIB.Elec</div>
+    <div class="sig-date">David SIBOUT</div>
+  </div>
+</div>
+
+<div class="footer">
+  SIB.Elec — David SIBOUT — 613 Chemin du Rondel, 14100 FIRFOL<br>
+  Tél&nbsp;: 06 69 76 22 04 · siboutrenov@gmail.com<br>
+  Électricité · Automatisme · Plaquiste · Enduiseur — Assurance décennale
+</div>
+
+<script>
+  window.addEventListener('load', function() {
+    setTimeout(function() { window.print(); }, 350);
+  });
+<\/script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank', 'width=960,height=800');
+    if (!win) {
+        toast('Autorisez les popups pour ce site puis réessayez', 'error');
+        return;
+    }
+    win.document.open();
+    win.document.write(printDoc);
+    win.document.close();
+
+    // Enregistrer le devis dans l'historique (compta + Supabase)
+    addToDevisHistory({
+        num: dNum, nom, societe,
+        adresse, cp, ville, tel, email, chantier,
+        date_devis: dDate, date_validite: dVal,
+        notes, paie, lignes: actives,
+        ht, tv10, tv20, ttc
+    });
+
+    toast('Fenêtre ouverte — choisissez "Enregistrer en PDF" dans le dialogue d\'impression', 'success');
+    // Proposer un rappel après 1.5s (laisser le temps au dialogue de s'ouvrir)
+    setTimeout(() => showRappelModal(nom, dNum), 1500);
+}
+
+/* ============================================================
+   MODALS
+============================================================ */
+function openOverlay(id)  { document.getElementById(id).classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); });
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key==='Escape') document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+});
+
+/* ============================================================
+   UTILS
+============================================================ */
+function fmt(n) {
+    return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function esc(s) {
+    return String(s||'')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fr(s) {
+    if (!s) return '—';
+    const [y,m,d] = s.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function setEl(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+
+let toastTimer;
+function toast(msg, type='') {
+    const el = document.getElementById('toast');
+    el.innerHTML = type==='success'
+        ? `<i class="fa-solid fa-circle-check"></i> ${msg}`
+        : type==='error'
+        ? `<i class="fa-solid fa-circle-xmark"></i> ${msg}`
+        : `<i class="fa-solid fa-circle-notch fa-spin"></i> ${msg}`;
+    el.className = `toast ${type} show`;
+    clearTimeout(toastTimer);
+    if (type !== '') toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

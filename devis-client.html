@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulter mon devis | SIB.Elec</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="SIB-logo.png" type="image/png">
+    <style>
+        :root {
+            --red:    #d41f1f;
+            --navy:   #1c1c1c;
+            --slate:  #4a5568;
+            --border: #e2e8f0;
+            --bg:     #f8fafc;
+            --green:  #16a34a;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--slate);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #0f1c2e 0%, #1a2e4a 100%);
+            padding: 1.5rem 0;
+        }
+        .container { max-width: 820px; margin: 0 auto; padding: 0 1.5rem; }
+        .logo-img { height: 44px; width: auto; border-radius: 7px; background: white; padding: 2px 5px; }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: white; }
+
+        /* Devis card */
+        .devis-wrap {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+
+        /* Zone "pas de devis" */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .empty-state i { font-size: 3.5rem; color: #ddd; margin-bottom: 1rem; display: block; }
+        .empty-state h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem; }
+        .empty-state p  { font-size: 0.9rem; color: var(--slate); line-height: 1.6; }
+
+        /* Devis header */
+        .dv-header {
+            background: linear-gradient(135deg, #1c1c1c 0%, #2d2d2d 100%);
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+        .dv-title { font-size: 2rem; font-weight: 900; color: var(--red); letter-spacing: -1px; }
+        .dv-num   { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+        .dv-artisan { text-align: right; font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.8; }
+        .dv-artisan strong { color: white; }
+
+        /* Corps devis */
+        .dv-body { padding: 2rem; }
+
+        .dv-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .dv-party {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+        }
+        .dv-party-lbl  { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #bbb; font-weight: 700; margin-bottom: 4px; }
+        .dv-party-name { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .dv-party-info { font-size: 0.82rem; color: var(--slate); line-height: 1.7; }
+
+        /* Dates */
+        .dv-dates {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        .dv-dates span { color: var(--slate); }
+        .dv-dates strong { color: var(--navy); }
+
+        /* Table */
+        .dv-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.85rem; }
+        .dv-table thead tr { background: var(--navy); color: white; }
+        .dv-table th { padding: 0.65rem 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 600; }
+        .dv-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+        .dv-table tbody tr:nth-child(even) td { background: #fafafa; }
+        .dv-table .r { text-align: right; }
+        .dv-table .c { text-align: center; }
+        .dv-table td:last-child { font-weight: 700; }
+
+        /* Totaux */
+        .dv-totaux { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+        .dv-tot-box {
+            width: 240px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dv-trow { display: flex; justify-content: space-between; padding: 0.5rem 0.85rem; font-size: 0.85rem; color: var(--slate); border-bottom: 1px solid var(--border); }
+        .dv-trow:last-child { border-bottom: none; }
+        .dv-trow.ttc { background: var(--navy); color: white; font-size: 1rem; font-weight: 800; padding: 0.65rem 0.85rem; }
+
+        /* Notes */
+        .dv-section-lbl  { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #bbb; font-weight: 700; margin-bottom: 4px; }
+        .dv-section-body { font-size: 0.85rem; color: var(--slate); line-height: 1.7; margin-bottom: 1.25rem; }
+
+        /* Bouton validation */
+        .dv-validate-zone {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .dv-validate-zone p { font-size: 0.85rem; color: var(--slate); max-width: 400px; line-height: 1.6; }
+        .btn-validate {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 0.85rem 1.75rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-validate:hover { background: #15803d; transform: translateY(-1px); }
+
+        /* État validé */
+        .validated-banner {
+            background: #f0fdf4;
+            border: 2px solid var(--green);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .validated-banner i { font-size: 1.5rem; color: var(--green); }
+        .validated-banner strong { color: #15803d; font-size: 0.95rem; }
+        .validated-banner span { color: #166534; font-size: 0.83rem; }
+
+        /* Footer */
+        .page-footer { text-align: center; padding: 2rem; font-size: 0.75rem; color: #aaa; }
+        .page-footer a { color: var(--red); text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .dv-parties    { grid-template-columns: 1fr; }
+            .dv-header     { flex-direction: column; }
+            .dv-artisan    { text-align: left; }
+            .dv-validate-zone { flex-direction: column; }
+            .btn-validate  { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+        <img src="SIB-logo.png" alt="SIB.Elec" class="logo-img">
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour au site</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="devis-wrap" id="devis-wrap">
+        <!-- Contenu injecté par JS -->
+    </div>
+</div>
+
+<div class="page-footer">
+    <p>SIB.Elec — David SIBOUT — 06 69 76 22 04 · <a href="mailto:siboutrenov@gmail.com">siboutrenov@gmail.com</a></p>
+</div>
+
+<script>
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmt(n) {
+    return Number(n).toLocaleString('fr-FR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+const SK_VALIDATED = 'sibelec_validated_devis';
+
+function getValidated() {
+    try { return JSON.parse(localStorage.getItem(SK_VALIDATED) || '[]'); } catch { return []; }
+}
+function setValidated(arr) {
+    localStorage.setItem(SK_VALIDATED, JSON.stringify(arr));
+}
+
+function loadDevisFromHash() {
+    const wrap = document.getElementById('devis-wrap');
+    const hash = location.hash.slice(1);
+
+    if (!hash) {
+        wrap.innerHTML = `<div class="empty-state">
+            <i class="fa-solid fa-file-circle-question"></i>
+            <h2>Aucun devis à afficher</h2>
+            <p>Ce lien ne contient pas de devis.<br>Demandez à David SIBOUT de vous envoyer votre lien personnalisé.</p>
+            <p style="margin-top:1rem;"><a href="index.html" style="color:var(--red);font-weight:600;">← Retour au site</a></p>
+        </div>`;
+        return;
+    }
+
+    let d;
+    try {
+        d = JSON.parse(atob(decodeURIComponent(hash)));
+    } catch(e) {
+        wrap.innerHTML = `<div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h2>Lien invalide ou expiré</h2>
+            <p>Ce lien de devis est corrompu.<br>Contactez David SIBOUT : <a href="tel:+33669762204">06 69 76 22 04</a></p>
+        </div>`;
+        return;
+    }
+
+    const validated  = getValidated();
+    const isValidated = validated.includes(d.num);
+
+    const rowsHTML = (d.lignes || []).map((l, i) => {
+        const lHT = (parseFloat(l.qty)||0) * (parseFloat(l.pu)||0);
+        return `<tr>
+            <td>${esc(l.description)}</td>
+            <td class="c">${l.qty}</td>
+            <td class="c">${esc(l.unit||'')}</td>
+            <td class="r">${fmt(parseFloat(l.pu)||0)} €</td>
+            <td class="c">${l.tva||10}%</td>
+            <td class="r">${fmt(lHT)} €</td>
+        </tr>`;
+    }).join('');
+
+    const ht  = d.ht  || 0;
+    const tv10 = d.tv10 || 0;
+    const tv20 = d.tv20 || 0;
+    const ttc  = ht + tv10 + tv20;
+
+    wrap.innerHTML = `
+    <div class="dv-header">
+        <div>
+            <div class="dv-title">DEVIS</div>
+            <div class="dv-num">N° ${esc(d.num)}</div>
+        </div>
+        <div class="dv-artisan">
+            <strong>David SIBOUT — SIB.Elec</strong><br>
+            613 Chemin du Rondel, 14100 FIRFOL<br>
+            06 69 76 22 04 · siboutrenov@gmail.com
+        </div>
+    </div>
+
+    <div class="dv-body">
+
+        ${isValidated ? `<div class="validated-banner">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+                <strong>Devis validé</strong><br>
+                <span>Vous avez accepté ce devis. David SIBOUT a été notifié.</span>
+            </div>
+        </div>` : ''}
+
+        <div class="dv-dates">
+            <div><span>Date : </span><strong>${esc(d.date||'—')}</strong></div>
+            <div><span>Valable jusqu'au : </span><strong>${esc(d.validity||'—')}</strong></div>
+        </div>
+
+        <div class="dv-parties">
+            <div class="dv-party">
+                <div class="dv-party-lbl">Émetteur</div>
+                <div class="dv-party-name">SIB.Elec</div>
+                <div class="dv-party-info">David SIBOUT<br>613 Chemin du Rondel — 14100 FIRFOL<br>06 69 76 22 04</div>
+            </div>
+            <div class="dv-party">
+                <div class="dv-party-lbl">Client</div>
+                <div class="dv-party-name">${esc(d.nom)}${d.societe ? ' — '+esc(d.societe) : ''}</div>
+                <div class="dv-party-info">
+                    ${d.adresse ? esc(d.adresse)+'<br>' : ''}
+                    ${[d.cp,d.ville].filter(Boolean).map(esc).join(' ')}
+                    ${d.tel  ? '<br>'+esc(d.tel)  : ''}
+                    ${d.email? '<br>'+esc(d.email): ''}
+                    ${d.chantier ? '<br><strong>Chantier :</strong> '+esc(d.chantier) : ''}
+                </div>
+            </div>
+        </div>
+
+        <table class="dv-table">
+            <thead>
+                <tr>
+                    <th style="width:42%">Désignation</th>
+                    <th class="c" style="width:8%">Qté</th>
+                    <th class="c" style="width:8%">Unité</th>
+                    <th class="r" style="width:14%">P.U. HT</th>
+                    <th class="c" style="width:8%">TVA</th>
+                    <th class="r" style="width:20%">Total HT</th>
+                </tr>
+            </thead>
+            <tbody>${rowsHTML}</tbody>
+        </table>
+
+        <div class="dv-totaux">
+            <div class="dv-tot-box">
+                <div class="dv-trow"><span>Total HT</span><span>${fmt(ht)} €</span></div>
+                ${tv10>0 ? `<div class="dv-trow"><span>TVA 10%</span><span>${fmt(tv10)} €</span></div>` : ''}
+                ${tv20>0 ? `<div class="dv-trow"><span>TVA 20%</span><span>${fmt(tv20)} €</span></div>` : ''}
+                <div class="dv-trow ttc"><span>TOTAL TTC</span><span>${fmt(ttc)} €</span></div>
+            </div>
+        </div>
+
+        ${d.notes ? `<div class="dv-section-lbl">Notes</div><div class="dv-section-body">${esc(d.notes).replace(/\n/g,'<br>')}</div>` : ''}
+        <div class="dv-section-lbl">Conditions de paiement</div>
+        <div class="dv-section-body">${esc(d.paie||'')}</div>
+
+    </div>
+
+    <div class="dv-validate-zone">
+        <p>
+            ${isValidated
+                ? '<i class="fa-solid fa-circle-check" style="color:var(--green);"></i> Vous avez déjà accepté ce devis. David a été notifié par email.'
+                : 'En cliquant sur "Valider le devis", vous acceptez les conditions de ce devis et David SIBOUT sera notifié par email.'}
+        </p>
+        ${!isValidated
+            ? `<button class="btn-validate" onclick="validateDevis()">
+                <i class="fa-solid fa-circle-check"></i> Valider le devis
+               </button>`
+            : ''}
+    </div>`;
+}
+
+function validateDevis() {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    let d;
+    try { d = JSON.parse(atob(decodeURIComponent(hash))); } catch { return; }
+
+    // Stocker localement
+    const validated = getValidated();
+    if (!validated.includes(d.num)) {
+        validated.push(d.num);
+        setValidated(validated);
+    }
+
+    // Notifier David par email
+    const subject = encodeURIComponent(`✅ Devis accepté — ${d.num} — ${d.nom}`);
+    const body    = encodeURIComponent(
+        `Bonjour David,\n\nLe client ${d.nom} a validé le devis ${d.num} (${d.nom}) d'un montant de ${Number(d.ht + (d.tv10||0) + (d.tv20||0)).toLocaleString('fr-FR',{minimumFractionDigits:2})} € TTC.\n\nDate de validation : ${new Date().toLocaleDateString('fr-FR')}\n\nCordialement.`
+    );
+    window.location.href = `mailto:siboutrenov@gmail.com?subject=${subject}&body=${body}`;
+
+    // Recharger l'affichage
+    setTimeout(() => loadDevisFromHash(), 800);
+}
+
+loadDevisFromHash();
+</script>
+
+</body>
+</html>

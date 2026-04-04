@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Avis clients SIB.Elec — David SIBOUT, artisan électricien et rénovateur à Firfol (14100). Lisez les témoignages et laissez votre avis.">
+    <title>Avis clients | SIB.Elec — David SIBOUT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="SIB-logo.png" type="image/png">
+    <script src="reviews.js"></script>
+    <style>
+        :root {
+            --red:          #d41f1f;
+            --red-dark:     #b71c1c;
+            --red-light:    #fef2f2;
+            --dark:         #111111;
+            --navy:         #1c1c1c;
+            --slate:        #4a5568;
+            --slate-light:  #718096;
+            --white:        #ffffff;
+            --bg:           #f7f7f7;
+            --border:       #e4e4e4;
+            --gold:         #f59e0b;
+            --green:        #16a34a;
+            --shadow-sm:    0 1px 4px rgba(0,0,0,0.07);
+            --shadow-md:    0 4px 16px rgba(0,0,0,0.10);
+            --shadow-lg:    0 12px 36px rgba(0,0,0,0.13);
+            --radius:       12px;
+            --radius-sm:    8px;
+            --transition:   all 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--slate);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        /* ========== HEADER ========== */
+        .site-header {
+            background: var(--dark);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 46px;
+            width: auto;
+            border-radius: 7px;
+            background: white;
+            padding: 2px 5px;
+            display: block;
+        }
+
+        .header-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .header-back:hover { color: white; }
+
+        /* ========== HERO ========== */
+        .page-hero {
+            background: linear-gradient(135deg, var(--dark) 0%, #2a0a0a 100%);
+            padding: 5rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(212,31,31,0.22) 0%, transparent 65%);
+        }
+
+        .page-hero .container { position: relative; }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(212,31,31,0.18);
+            color: #fca5a5;
+            border: 1px solid rgba(212,31,31,0.35);
+            border-radius: 20px;
+            padding: 0.35rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-hero h1 {
+            font-size: clamp(2rem, 5vw, 3.25rem);
+            font-weight: 900;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .page-hero p {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.65);
+            max-width: 520px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* Score global */
+        .global-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius);
+            padding: 1.1rem 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .score-big {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+        }
+
+        .score-right { text-align: left; }
+
+        .score-stars { color: var(--gold); font-size: 1.3rem; letter-spacing: 3px; }
+        .score-count { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+        .score-divider {
+            width: 1px;
+            height: 52px;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .score-dist { display: flex; flex-direction: column; gap: 3px; }
+
+        .dist-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.55);
+        }
+
+        .dist-bar-wrap {
+            width: 80px;
+            height: 5px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .dist-bar { height: 100%; background: var(--gold); border-radius: 10px; }
+
+        /* ========== MAIN ========== */
+        .page-main { padding: 4rem 0 5rem; }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        /* ========== REVIEWS LIST ========== */
+        .reviews-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .reviews-header h2 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--navy);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.38rem 0.85rem;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: white;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--slate);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-tab:hover { border-color: var(--red); color: var(--red); }
+        .filter-tab.active { background: var(--red); color: white; border-color: var(--red); }
+
+        .reviews-list { display: flex; flex-direction: column; gap: 1rem; }
+
+        .review-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: fadeUp 0.4s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity:0; transform: translateY(12px); }
+            to   { opacity:1; transform: none; }
+        }
+
+        .review-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+        .rc-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rc-author {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .rc-avatar {
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--red) 0%, #7f0000 100%);
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .rc-name  { font-weight: 700; font-size: 0.95rem; color: var(--navy); }
+        .rc-meta  { font-size: 0.75rem; color: var(--slate-light); margin-top: 1px; }
+        .rc-service {
+            display: inline-block;
+            background: var(--red-light);
+            color: var(--red);
+            border-radius: 4px;
+            padding: 0.1rem 0.55rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .rc-right { text-align: right; flex-shrink: 0; }
+        .rc-stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 2px; }
+        .rc-date  { font-size: 0.72rem; color: var(--slate-light); margin-top: 2px; }
+
+        .rc-text {
+            font-size: 0.92rem;
+            color: var(--slate);
+            line-height: 1.75;
+            font-style: italic;
+            position: relative;
+            padding-left: 1.2rem;
+            border-left: 3px solid var(--border);
+        }
+
+        .rc-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.68rem;
+            color: var(--green);
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+
+        .reviews-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--slate-light);
+        }
+
+        .reviews-empty i { font-size: 2.5rem; opacity: 0.2; display: block; margin-bottom: 1rem; }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 1.75rem;
+        }
+
+        .page-btn {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: white;
+            color: var(--slate);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .page-btn:hover { border-color: var(--red); color: var(--red); }
+        .page-btn.active { background: var(--red); color: white; border-color: var(--red); }
+        .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* ========== FORM ========== */
+        .form-card {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 90px;
+            overflow: hidden;
+        }
+
+        .form-card-head {
+            background: linear-gradient(135deg, var(--dark) 0%, #2a0a0a 100%);
+            padding: 1.4rem 1.5rem;
+        }
+
+        .form-card-head h3 {
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-card-head p { font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+
+        .form-card-body { padding: 1.5rem; }
+
+        /* Stars picker */
+        .stars-picker {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1.1rem;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .stars-picker input { display: none; }
+
+        .stars-picker label {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.15s, transform 0.15s;
+            line-height: 1;
+        }
+
+        .stars-picker label:hover,
+        .stars-picker label:hover ~ label,
+        .stars-picker input:checked ~ label {
+            color: var(--gold);
+        }
+
+        .stars-picker label:hover { transform: scale(1.15); }
+
+        .stars-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .form-group { margin-bottom: 0.9rem; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.62rem 0.875rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--navy);
+            background: #fafafa;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(212,31,31,0.1);
+            background: white;
+        }
+
+        .form-group textarea { resize: vertical; min-height: 110px; }
+
+        .char-count {
+            font-size: 0.68rem;
+            color: var(--slate-light);
+            text-align: right;
+            margin-top: 3px;
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            margin-top: 0.25rem;
+        }
+
+        .btn-submit:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(212,31,31,0.35); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .form-note {
+            text-align: center;
+            font-size: 0.71rem;
+            color: var(--slate-light);
+            margin-top: 0.75rem;
+            line-height: 1.65;
+        }
+
+        /* Success state */
+        .form-success {
+            display: none;
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .success-icon {
+            width: 70px; height: 70px;
+            background: #dcfce7;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            color: var(--green);
+            margin: 0 auto 1.25rem;
+        }
+
+        .form-success h3 { font-size: 1.15rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem; }
+        .form-success p  { font-size: 0.875rem; color: var(--slate-light); line-height: 1.7; }
+
+        /* ========== FOOTER ========== */
+        .page-footer {
+            background: var(--dark);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .page-footer p { font-size: 0.78rem; color: rgba(255,255,255,0.3); }
+        .page-footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+        .page-footer a:hover { color: white; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 900px) {
+            .two-col { grid-template-columns: 1fr; }
+            .form-card { position: static; }
+        }
+
+        @media (max-width: 560px) {
+            .page-hero { padding: 3.5rem 0 3rem; }
+            .global-score { gap: 1rem; padding: 0.9rem 1.25rem; }
+            .score-divider { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+    <div class="container">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="SIB-logo.png" alt="SIB.Elec — David SIBOUT" class="logo-img">
+            </a>
+            <a href="index.html" class="header-back">
+                <i class="fa-solid fa-arrow-left"></i> Retour au site
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="page-hero">
+    <div class="container">
+        <div class="hero-label"><i class="fa-solid fa-star"></i> Avis clients vérifiés</div>
+        <h1>Ce que disent<br>nos clients</h1>
+        <p>Des avis authentiques, laissés par de vrais clients après chaque intervention.</p>
+
+        <div class="global-score" id="global-score">
+            <div class="score-big" id="sc-avg">—</div>
+            <div class="score-right">
+                <div class="score-stars" id="sc-stars">★★★★★</div>
+                <div class="score-count" id="sc-count">Chargement…</div>
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-dist" id="sc-dist"></div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN -->
+<main class="page-main">
+    <div class="container">
+        <div class="two-col">
+
+            <!-- LISTE DES AVIS -->
+            <div>
+                <div class="reviews-header">
+                    <h2 id="rv-count-label">Tous les avis</h2>
+                    <div class="filter-tabs" id="filter-tabs">
+                        <button class="filter-tab active" data-filter="0" onclick="setFilter(0,this)">Tous</button>
+                        <button class="filter-tab" data-filter="5" onclick="setFilter(5,this)">★★★★★</button>
+                        <button class="filter-tab" data-filter="4" onclick="setFilter(4,this)">★★★★</button>
+                        <button class="filter-tab" data-filter="3" onclick="setFilter(3,this)">★★★ et -</button>
+                    </div>
+                </div>
+
+                <div class="reviews-list" id="reviews-list"></div>
+
+                <div class="pagination" id="pagination"></div>
+            </div>
+
+            <!-- FORMULAIRE -->
+            <div>
+                <div class="form-card">
+                    <div class="form-card-head">
+                        <h3><i class="fa-solid fa-pen-to-square" style="margin-right:0.4rem;color:#fca5a5;"></i>Laisser votre avis</h3>
+                        <p>Votre avis est publié après vérification manuelle par David.</p>
+                    </div>
+
+                    <div class="form-card-body" id="form-body">
+                        <form id="review-form" onsubmit="submitReview(event)" novalidate>
+
+                            <span class="stars-label">Votre note *</span>
+                            <div class="stars-picker" id="stars-picker">
+                                <input type="radio" name="stars" id="s5" value="5"><label for="s5" title="5 étoiles">★</label>
+                                <input type="radio" name="stars" id="s4" value="4"><label for="s4" title="4 étoiles">★</label>
+                                <input type="radio" name="stars" id="s3" value="3"><label for="s3" title="3 étoiles">★</label>
+                                <input type="radio" name="stars" id="s2" value="2"><label for="s2" title="2 étoiles">★</label>
+                                <input type="radio" name="stars" id="s1" value="1"><label for="s1" title="1 étoile">★</label>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="r-prenom">Prénom *</label>
+                                    <input type="text" id="r-prenom" placeholder="Jean" required maxlength="40">
+                                </div>
+                                <div class="form-group">
+                                    <label for="r-ville">Ville</label>
+                                    <input type="text" id="r-ville" placeholder="Lisieux" maxlength="50">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="r-service">Prestation effectuée</label>
+                                <select id="r-service">
+                                    <option value="">Sélectionner…</option>
+                                    <option>Électricité générale</option>
+                                    <option>Automatisme (portail, volets…)</option>
+                                    <option>Plaquisterie</option>
+                                    <option>Enduit (façade ou intérieur)</option>
+                                    <option>Borne de recharge IRVE</option>
+                                    <option>Panneaux solaires</option>
+                                    <option>Plusieurs prestations</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="r-text">Votre avis *</label>
+                                <textarea id="r-text" placeholder="Décrivez votre expérience avec David SIBOUT — les travaux réalisés, la qualité du résultat, le respect des délais…" required maxlength="600" oninput="updateChar(this)"></textarea>
+                                <div class="char-count"><span id="char-count">0</span> / 600 caractères</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="r-tel">Téléphone (non publié, vérification uniquement)</label>
+                                <input type="tel" id="r-tel" placeholder="06 00 00 00 00" maxlength="20">
+                            </div>
+
+                            <button type="submit" class="btn-submit" id="submit-btn">
+                                <i class="fa-solid fa-paper-plane"></i> Envoyer mon avis
+                            </button>
+                            <p class="form-note">
+                                <i class="fa-solid fa-shield-halved" style="color:var(--green);"></i>
+                                Votre avis est relu par David avant publication.<br>
+                                Aucune donnée personnelle n'est stockée en ligne.
+                            </p>
+                        </form>
+                    </div>
+
+                    <div class="form-success" id="form-success">
+                        <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <h3>Merci pour votre avis !</h3>
+                        <p>Votre message a bien été envoyé à David.<br>Il sera publié après vérification, généralement sous 24h.</p>
+                        <button onclick="resetForm()" style="margin-top:1.25rem;padding:0.55rem 1.25rem;border:1.5px solid var(--border);border-radius:6px;background:white;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--slate);">
+                            Laisser un autre avis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="page-footer">
+    <div class="container">
+        <p>© 2026 SIB.Elec — David SIBOUT — <a href="index.html">Retour au site</a> — <a href="mentions-legales.html">Mentions légales</a></p>
+    </div>
+</footer>
+
+<script>
+/* ============================================================
+   ÉTAT
+============================================================ */
+const PER_PAGE   = 5;
+let   filterStar = 0;
+let   page       = 1;
+
+/* ============================================================
+   INIT
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    buildScore();
+    renderReviews();
+});
+
+/* ============================================================
+   SCORE GLOBAL
+============================================================ */
+function buildScore() {
+    const total = REVIEWS.length;
+    if (!total) return;
+
+    const avg  = REVIEWS.reduce((s, r) => s + r.stars, 0) / total;
+    const dist = [5,4,3,2,1].map(s => ({
+        star: s,
+        pct:  Math.round(REVIEWS.filter(r => r.stars === s).length / total * 100)
+    }));
+
+    document.getElementById('sc-avg').textContent   = avg.toFixed(1);
+    document.getElementById('sc-stars').textContent = starsStr(Math.round(avg));
+    document.getElementById('sc-count').textContent = `${total} avis vérifi${total>1?'és':'é'}`;
+
+    document.getElementById('sc-dist').innerHTML = dist.map(d => `
+        <div class="dist-row">
+            <span>${d.star}★</span>
+            <div class="dist-bar-wrap"><div class="dist-bar" style="width:${d.pct}%"></div></div>
+            <span>${d.pct}%</span>
+        </div>`).join('');
+}
+
+/* ============================================================
+   LISTE DES AVIS
+============================================================ */
+function setFilter(star, btn) {
+    filterStar = star;
+    page = 1;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderReviews();
+}
+
+function renderReviews() {
+    const filtered = filterStar
+        ? REVIEWS.filter(r => filterStar === 3 ? r.stars <= 3 : r.stars === filterStar)
+        : [...REVIEWS];
+
+    // Tri : plus récent en premier
+    filtered.sort((a, b) => (b.ts||0) - (a.ts||0));
+
+    const total  = filtered.length;
+    const pages  = Math.max(1, Math.ceil(total / PER_PAGE));
+    page         = Math.min(page, pages);
+
+    const slice  = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
+    const list   = document.getElementById('reviews-list');
+
+    document.getElementById('rv-count-label').textContent =
+        total > 0 ? `${total} avis${filterStar ? ' à ' + filterStar + ' ★' : ''}` : 'Aucun avis';
+
+    if (!total) {
+        list.innerHTML = `<div class="reviews-empty">
+            <i class="fa-solid fa-star"></i>
+            <p>Aucun avis dans cette catégorie.</p>
+        </div>`;
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    }
+
+    list.innerHTML = slice.map((r, i) => {
+        const initials = r.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const delay    = i * 60;
+        return `
+        <article class="review-card" style="animation-delay:${delay}ms">
+            <div class="rc-top">
+                <div class="rc-author">
+                    <div class="rc-avatar">${initials}</div>
+                    <div>
+                        <div class="rc-name">${esc(r.name)}</div>
+                        <div class="rc-meta">${r.city ? esc(r.city) : ''}</div>
+                        ${r.service ? `<span class="rc-service">${esc(r.service)}</span>` : ''}
+                    </div>
+                </div>
+                <div class="rc-right">
+                    <div class="rc-stars">${starsStr(r.stars)}</div>
+                    <div class="rc-date">${r.date || ''}</div>
+                </div>
+            </div>
+            <p class="rc-text">${esc(r.text)}</p>
+            <div class="rc-verified"><i class="fa-solid fa-circle-check"></i> Avis vérifié par SIB.Elec</div>
+        </article>`;
+    }).join('');
+
+    // Pagination
+    const pg = document.getElementById('pagination');
+    if (pages <= 1) { pg.innerHTML=''; return; }
+
+    let html = `<button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></button>`;
+    for (let p2=1; p2<=pages; p2++) {
+        html += `<button class="page-btn ${p2===page?'active':''}" onclick="goPage(${p2})">${p2}</button>`;
+    }
+    html += `<button class="page-btn" onclick="goPage(${page+1})" ${page>=pages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></button>`;
+    pg.innerHTML = html;
+}
+
+function goPage(p) {
+    page = p;
+    renderReviews();
+    document.querySelector('.reviews-header').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ============================================================
+   FORMULAIRE
+============================================================ */
+function updateChar(el) {
+    document.getElementById('char-count').textContent = el.value.length;
+}
+
+function submitReview(e) {
+    e.preventDefault();
+    const prenom  = document.getElementById('r-prenom').value.trim();
+    const ville   = document.getElementById('r-ville').value.trim();
+    const service = document.getElementById('r-service').value;
+    const text    = document.getElementById('r-text').value.trim();
+    const tel     = document.getElementById('r-tel').value.trim();
+    const stars   = document.querySelector('input[name="stars"]:checked')?.value;
+
+    // Validation
+    if (!prenom) { shake('r-prenom'); return; }
+    if (!stars)  { shake('stars-picker'); alert('Veuillez sélectionner une note.'); return; }
+    if (text.length < 20) { shake('r-text'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Envoi en cours…';
+
+    // Construction du mailto
+    const subject = encodeURIComponent(`[Avis SIB.Elec] ${prenom}${ville?' — '+ville:''} — ${stars}★`);
+    const body    = encodeURIComponent(
+`=== NOUVEL AVIS CLIENT SIB.Elec ===
+
+Prénom   : ${prenom}
+Ville    : ${ville || 'non renseigné'}
+Note     : ${stars}/5 ★
+Service  : ${service || 'non renseigné'}
+Téléphone: ${tel || 'non renseigné'}
+
+--- Avis ---
+${text}
+
+---
+Envoyé depuis avis.html — ${new Date().toLocaleDateString('fr-FR')}
+Pour publier : ouvrir dashboard.html → onglet Avis → Ajouter`
+    );
+
+    // Ouvrir le client mail avec tout pré-rempli
+    window.location.href = `mailto:siboutrenov@gmail.com?subject=${subject}&body=${body}`;
+
+    // Afficher le succès après un délai
+    setTimeout(() => {
+        document.getElementById('form-body').style.display = 'none';
+        document.getElementById('form-success').style.display = 'block';
+    }, 1200);
+}
+
+function resetForm() {
+    document.getElementById('review-form').reset();
+    document.getElementById('char-count').textContent = '0';
+    document.getElementById('form-body').style.display = 'block';
+    document.getElementById('form-success').style.display = 'none';
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').innerHTML = '<i class="fa-solid fa-paper-plane"></i> Envoyer mon avis';
+}
+
+function shake(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.animation = 'none';
+    el.offsetHeight; // reflow
+    el.style.animation = 'shake 0.35s ease';
+    el.focus?.();
+}
+
+/* ============================================================
+   UTILS
+============================================================ */
+function starsStr(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+function esc(s) {
+    return String(s||'')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+// Animation shake CSS
+const style = document.createElement('style');
+style.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
