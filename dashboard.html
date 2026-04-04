@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="SIB-logo.png" type="image/png">
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js" defer></script>
+    <!-- signature_pad remplacé par implémentation native canvas -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
         /* ============================================================
@@ -2442,8 +2442,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initComptaYears();
     const depDate = document.getElementById('dep-date');
     if (depDate) depDate.value = new Date().toISOString().slice(0, 10);
-    // SignaturePad initialisé après car son script est en defer
-    window.addEventListener('load', () => initSignaturePad());
+    // Signature pad natif — init après que le DOM soit visible
+    setTimeout(initSignaturePad, 200);
 });
 
 /* ============================================================
@@ -2722,29 +2722,76 @@ function switchTab(name) {
 }
 
 /* ============================================================
-   SIGNATURE PAD
+   SIGNATURE PAD — implémentation native canvas (sans CDN)
 ============================================================ */
 function initSignaturePad() {
     const canvas = document.getElementById('sig-canvas');
-    if (!canvas || typeof SignaturePad === 'undefined') return;
-    if (sigPad) { resizeSigCanvas(); return; } // déjà initialisé → juste redimensionner
+    if (!canvas) return;
+
+    // Si déjà initialisé, juste redimensionner
+    if (sigPad) { resizeSigCanvas(); return; }
 
     const ratio = window.devicePixelRatio || 1;
     const w = canvas.getBoundingClientRect().width || canvas.offsetWidth || 600;
     canvas.width  = w * ratio;
     canvas.height = 110 * ratio;
-    canvas.getContext('2d').scale(ratio, ratio);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(ratio, ratio);
+    ctx.fillStyle = 'rgb(250,250,250)';
+    ctx.fillRect(0, 0, w, 110);
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgb(250,250,250)',
-        penColor: '#111111',
-        minWidth: 1,
-        maxWidth: 2.5
-    });
+    let drawing = false;
+    let hasContent = false;
+
+    function getPos(e) {
+        const r = canvas.getBoundingClientRect();
+        const src = e.touches ? e.touches[0] : e;
+        return { x: src.clientX - r.left, y: src.clientY - r.top };
+    }
+    function onStart(e) {
+        e.preventDefault();
+        drawing = true;
+        const p = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+    }
+    function onMove(e) {
+        e.preventDefault();
+        if (!drawing) return;
+        const p = getPos(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        hasContent = true;
+    }
+    function onEnd(e) { e.preventDefault(); drawing = false; }
+
+    canvas.addEventListener('mousedown',  onStart);
+    canvas.addEventListener('mousemove',  onMove);
+    canvas.addEventListener('mouseup',    onEnd);
+    canvas.addEventListener('mouseleave', onEnd);
+    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchmove',  onMove,  { passive: false });
+    canvas.addEventListener('touchend',   onEnd,   { passive: false });
+
+    sigPad = {
+        isEmpty:    () => !hasContent,
+        clear:      () => {
+            ctx.fillStyle = 'rgb(250,250,250)';
+            ctx.fillRect(0, 0, canvas.width / ratio, canvas.height / ratio);
+            hasContent = false;
+        },
+        toDataURL:  () => canvas.toDataURL('image/png')
+    };
+
     window.addEventListener('resize', resizeSigCanvas);
 }
 
 function resizeSigCanvas() {
+    if (!sigPad) { initSignaturePad(); return; }
     const canvas = document.getElementById('sig-canvas');
     if (!canvas) return;
     const ratio = window.devicePixelRatio || 1;
@@ -2752,8 +2799,11 @@ function resizeSigCanvas() {
     if (!w) return;
     canvas.width  = w * ratio;
     canvas.height = 110 * ratio;
-    canvas.getContext('2d').scale(ratio, ratio);
-    if (sigPad) sigPad.clear();
+    const ctx = canvas.getContext('2d');
+    ctx.scale(ratio, ratio);
+    ctx.fillStyle = 'rgb(250,250,250)';
+    ctx.fillRect(0, 0, w, 110);
+    sigPad.clear();
 }
 
 function clearSignature() {
