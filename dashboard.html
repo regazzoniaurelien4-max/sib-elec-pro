@@ -1302,6 +1302,109 @@
         .rappel-modal-title { font-size: 1.05rem; font-weight: 800; color: var(--navy); margin-bottom: 0.4rem; }
         .rappel-modal-sub   { font-size: 0.85rem; color: var(--slate-light); margin-bottom: 1.5rem; line-height: 1.5; }
         .rappel-modal-btns  { display: flex; gap: 0.75rem; justify-content: center; }
+
+        /* ============================================================
+           RESPONSIVE MOBILE (≤ 768px)
+        ============================================================ */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { display: none; }
+
+            .main { padding-bottom: 68px; }
+
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+            .main-header > div:last-child {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            .main-header > div:last-child .btn {
+                flex: 1;
+                font-size: 0.78rem;
+                padding: 0.5rem 0.5rem;
+                min-width: 0;
+            }
+            .main-body { padding: 0.75rem; }
+
+            /* Grilles → 1 colonne */
+            .form-grid, .form-grid-3, .form-grid-4 {
+                grid-template-columns: 1fr !important;
+            }
+            .inv-stats {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .ca-stat-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            /* Tables scrollables */
+            .card-body { padding: 0.75rem; overflow-x: auto; }
+            table { min-width: 540px; }
+
+            /* Modals → bottom sheet */
+            .modal-overlay { padding: 0; align-items: flex-end; }
+            .modal-box, .modal-lg {
+                max-width: 100%;
+                width: 100%;
+                border-radius: 16px 16px 0 0;
+                max-height: 88vh;
+                overflow-y: auto;
+            }
+
+            /* Bottom nav */
+            .mobile-bottom-nav {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-bottom-nav { display: none; }
+        }
+
+        /* Mobile bottom navigation bar */
+        .mobile-bottom-nav {
+            display: none; /* hidden by default, shown via media query */
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--dark);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+            height: 60px;
+        }
+        .mob-nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+            transition: color 0.18s;
+            position: relative;
+        }
+        .mob-nav-btn i { font-size: 1.15rem; }
+        .mob-nav-btn.active { color: var(--red); }
+        .mob-nav-badge {
+            position: absolute;
+            top: 4px; right: calc(50% - 18px);
+            background: var(--red);
+            color: #fff;
+            font-size: 0.55rem;
+            border-radius: 8px;
+            padding: 1px 4px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -2602,8 +2705,15 @@ function switchTab(name) {
     if (name === 'avis')       renderAvis();
     if (name === 'rappels')    renderRappels();
     if (name === 'compta')     renderCompta();
-    // Resize signature pad when tab devis becomes visible
-    if (name === 'devis' && sigPad) resizeSigCanvas();
+    // Signature pad : init si pas encore fait, sinon resize
+    if (name === 'devis') {
+        if (!sigPad) initSignaturePad();
+        else resizeSigCanvas();
+    }
+    // Sync mobile bottom nav
+    document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+    const mobBtn = document.getElementById('mob-nav-' + name);
+    if (mobBtn) mobBtn.classList.add('active');
 }
 
 /* ============================================================
@@ -4137,5 +4247,30 @@ function toast(msg, type='') {
     if (type !== '') toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
 }
 </script>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-bottom-nav">
+    <button class="mob-nav-btn active" id="mob-nav-devis" onclick="switchTab('devis')">
+        <i class="fa-solid fa-file-invoice"></i>
+        Devis
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-inventaire" onclick="switchTab('inventaire')">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        Stock
+        <span class="mob-nav-badge" id="mob-alert-badge"></span>
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-avis" onclick="switchTab('avis')">
+        <i class="fa-solid fa-star"></i>
+        Avis
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-rappels" onclick="switchTab('rappels')">
+        <i class="fa-solid fa-bell"></i>
+        Rappels
+    </button>
+    <button class="mob-nav-btn" id="mob-nav-compta" onclick="switchTab('compta')">
+        <i class="fa-solid fa-chart-line"></i>
+        Compta
+    </button>
+</nav>
 </body>
 </html>
