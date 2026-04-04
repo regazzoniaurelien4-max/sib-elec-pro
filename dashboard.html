@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="SIB-logo.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js" defer></script>
-    <!-- Supabase chargé en defer pour ne pas bloquer le rendu -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
         /* ============================================================
            VARIABLES
@@ -2250,33 +2249,37 @@
 
 <script>
 /* ============================================================
+   CONFIGURATION SUPABASE
+   ⬇️  Collez ici votre clé "anon/public" depuis Supabase > Settings > API
+============================================================ */
+const SUPABASE_URL      = 'https://gygobvhoougokbttaaqq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_wDiNgGPr5NiSbFP3eYURVQ_jJ7l0a3c'; // ← remplacez cette ligne
+
+/* ============================================================
    SUPABASE INIT
 ============================================================ */
-let _sb = null;
+let _sb     = null;
 let _sbUser = null;
-let _sbMode = false; // true = Supabase actif
+let _sbMode = false;
 
 function initSupabase() {
-    const cfg = window.SIBELEC_SUPABASE;
-    if (!cfg || !cfg.url || cfg.url === 'VOTRE_URL_ICI') {
-        console.warn('[SIB.Elec] Supabase non configuré — mode local activé');
+    if (SUPABASE_ANON_KEY === 'VOTRE_CLE_ANON_ICI' || !SUPABASE_ANON_KEY) {
+        console.warn('[SIBElec] Clé Supabase manquante — mode local');
         return false;
     }
-    if (!cfg.key || cfg.key === 'VOTRE_CLE_ANON_ICI') {
-        console.error('[SIB.Elec] Clé anon manquante dans supabase-config.js');
-        alert('Configuration incomplète : ajoutez la clé anon dans supabase-config.js');
+    if (typeof window.supabase === 'undefined') {
+        console.error('[SIBElec] Bibliothèque Supabase non chargée (CDN)');
         return false;
     }
     try {
-        if (typeof window.supabase === 'undefined') {
-            console.error('[SIB.Elec] Bibliothèque Supabase non chargée');
-            return false;
-        }
-        _sb = window.supabase.createClient(cfg.url, cfg.key);
+        _sb     = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         _sbMode = true;
-        console.log('[SIB.Elec] Supabase initialisé ✓ URL:', cfg.url.substring(0, 40));
+        console.log('[SIBElec] Supabase ✓', SUPABASE_URL);
         return true;
-    } catch(e) { return false; }
+    } catch(e) {
+        console.error('[SIBElec] Erreur init Supabase:', e.message);
+        return false;
+    }
 }
 
 function setSyncBadge(mode) {
@@ -2322,20 +2325,7 @@ let _pendingRappel = null;
 /* ============================================================
    BOOTSTRAP
 ============================================================ */
-// Attendre que TOUS les scripts defer soient chargés (window.load) avant d'initialiser
-window.addEventListener('load', async () => {
-    // Charger supabase-config.js dynamiquement si non encore chargé
-    if (!window.SIBELEC_SUPABASE) {
-        try {
-            await new Promise((res, rej) => {
-                const s = document.createElement('script');
-                s.src = 'supabase-config.js';
-                s.onload = res; s.onerror = res; // ne jamais bloquer
-                document.head.appendChild(s);
-            });
-        } catch(e) {}
-    }
-
+document.addEventListener('DOMContentLoaded', async () => {
     const sbOk = initSupabase();
     await initLogin(sbOk);
     loadInventory();
@@ -2344,11 +2334,12 @@ window.addEventListener('load', async () => {
     loadDevisHistory();
     loadDepenses();
     initDevis();
-    initSignaturePad();
     updateAlertBadge();
     initComptaYears();
     const depDate = document.getElementById('dep-date');
     if (depDate) depDate.value = new Date().toISOString().slice(0, 10);
+    // SignaturePad initialisé après car son script est en defer
+    window.addEventListener('load', () => initSignaturePad());
 });
 
 /* ============================================================
@@ -2358,27 +2349,31 @@ async function initLogin(sbOk) {
     const overlay = document.getElementById('login-overlay');
 
     if (sbOk) {
-        // Mode Supabase
+        // ── Mode Supabase : afficher email + mot de passe ──
         document.getElementById('login-supabase-form').style.display = 'block';
         document.getElementById('login-local-form').style.display    = 'none';
-        document.querySelector('.login-sub').textContent = 'Connectez-vous avec votre compte Supabase';
 
-        // Vérifier session existante
-        const { data: { session } } = await _sb.auth.getSession();
-        if (session) {
-            _sbUser = session.user;
-            overlay.style.display = 'none';
-            setSyncBadge('online');
-            syncFromSupabase();
-            return;
-        }
+        // Session déjà active ?
+        try {
+            const { data: { session } } = await _sb.auth.getSession();
+            if (session && session.user) {
+                _sbUser = session.user;
+                overlay.style.display = 'none';
+                setSyncBadge('online');
+                syncFromSupabase();
+                return;
+            }
+        } catch(e) { console.error('[SIBElec] getSession error:', e); }
+
         overlay.style.display = 'flex';
-        setTimeout(() => document.getElementById('login-email').focus(), 120);
+        setTimeout(() => { const el = document.getElementById('login-email'); if(el) el.focus(); }, 150);
+
     } else {
-        // Mode local (sans Supabase)
+        // ── Mode local (clé Supabase non renseignée) ──
         document.getElementById('login-supabase-form').style.display = 'none';
         document.getElementById('login-local-form').style.display    = 'block';
-        document.getElementById('supabase-not-configured').style.display = 'block';
+        const hint = document.getElementById('supabase-not-configured');
+        if (hint) hint.style.display = 'block';
         setSyncBadge('local');
 
         if (sessionStorage.getItem('sibelec_auth') === '1') {
@@ -2386,44 +2381,59 @@ async function initLogin(sbOk) {
             return;
         }
         overlay.style.display = 'flex';
-        setTimeout(() => document.getElementById('login-code').focus(), 120);
+        setTimeout(() => { const el = document.getElementById('login-code'); if(el) el.focus(); }, 150);
     }
 }
 
 async function checkLogin() {
     const errEl = document.getElementById('login-error');
-    errEl.textContent = '';
+    if (errEl) errEl.textContent = '';
 
     if (_sbMode) {
-        // Authentification Supabase
-        const email    = document.getElementById('login-email').value.trim().toLowerCase();
-        const password = document.getElementById('login-password').value.trim();
-        if (!email || !password) { errEl.textContent = 'Email et mot de passe requis.'; return; }
+        // ── Connexion Supabase ──
+        const emailEl    = document.getElementById('login-email');
+        const passwordEl = document.getElementById('login-password');
+        const email      = (emailEl?.value    || '').trim().toLowerCase();
+        const password   = (passwordEl?.value || '').trim();
 
-        const btn = document.querySelector('.login-btn');
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connexion…';
-        btn.disabled  = true;
-
-        const { data, error } = await _sb.auth.signInWithPassword({ email, password });
-        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Accéder au dashboard';
-        btn.disabled  = false;
-
-        if (error) {
-            // Afficher l'erreur précise de Supabase pour diagnostic
-            alert('Erreur Supabase : ' + error.message + '\n\nCode : ' + (error.status || 'N/A'));
-            errEl.textContent = error.message;
-            document.getElementById('login-password').classList.add('error');
-            setTimeout(() => document.getElementById('login-password').classList.remove('error'), 600);
+        if (!email || !password) {
+            if (errEl) errEl.textContent = 'Email et mot de passe requis.';
             return;
         }
+
+        const btn = document.querySelector('.login-btn');
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connexion…'; btn.disabled = true; }
+
+        let data, error;
+        try {
+            ({ data, error } = await _sb.auth.signInWithPassword({ email, password }));
+        } catch(e) {
+            alert('Erreur réseau : ' + e.message);
+            if (btn) { btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Accéder au dashboard'; btn.disabled = false; }
+            return;
+        }
+
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Accéder au dashboard'; btn.disabled = false; }
+
+        if (error) {
+            alert('Erreur Supabase\n\n' + error.message + '\n\nCode HTTP : ' + (error.status || 'N/A'));
+            if (errEl) errEl.textContent = error.message;
+            if (passwordEl) {
+                passwordEl.classList.add('error');
+                setTimeout(() => passwordEl.classList.remove('error'), 700);
+            }
+            return;
+        }
+
         _sbUser = data.user;
         document.getElementById('login-overlay').style.display = 'none';
         setSyncBadge('online');
         syncFromSupabase();
+
     } else {
-        // Mode local — code simple
-        const code  = document.getElementById('login-code').value;
-        const LOCAL_CODE = '1234'; // Changez ce code dans supabase-config.js si besoin
+        // ── Mode local (code 4 chiffres) ──
+        const code = (document.getElementById('login-code')?.value || '').trim();
+        const LOCAL_CODE = '1234';
         if (code === LOCAL_CODE) {
             sessionStorage.setItem('sibelec_auth', '1');
             document.getElementById('login-overlay').style.display = 'none';
