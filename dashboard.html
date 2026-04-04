@@ -2533,7 +2533,7 @@ async function checkLogin() {
         document.getElementById('login-overlay').style.display = 'none';
         setSyncBadge('online');
         syncFromSupabase();
-        setTimeout(resizeSigCanvas, 150);
+        setTimeout(initSignaturePad, 150);
 
     } else {
         // ── Mode local (code 4 chiffres) ──
@@ -2542,7 +2542,7 @@ async function checkLogin() {
         if (code === LOCAL_CODE) {
             sessionStorage.setItem('sibelec_auth', '1');
             document.getElementById('login-overlay').style.display = 'none';
-            setTimeout(resizeSigCanvas, 150);
+            setTimeout(initSignaturePad, 150);
         } else {
             const input = document.getElementById('login-code');
             input.classList.add('error');
@@ -2727,7 +2727,14 @@ function switchTab(name) {
 function initSignaturePad() {
     const canvas = document.getElementById('sig-canvas');
     if (!canvas || typeof SignaturePad === 'undefined') return;
-    resizeSigCanvas();
+    if (sigPad) { resizeSigCanvas(); return; } // déjà initialisé → juste redimensionner
+
+    const ratio = window.devicePixelRatio || 1;
+    const w = canvas.getBoundingClientRect().width || canvas.offsetWidth || 600;
+    canvas.width  = w * ratio;
+    canvas.height = 110 * ratio;
+    canvas.getContext('2d').scale(ratio, ratio);
+
     sigPad = new SignaturePad(canvas, {
         backgroundColor: 'rgb(250,250,250)',
         penColor: '#111111',
@@ -2740,10 +2747,10 @@ function initSignaturePad() {
 function resizeSigCanvas() {
     const canvas = document.getElementById('sig-canvas');
     if (!canvas) return;
-    const ratio  = window.devicePixelRatio || 1;
-    const rect   = canvas.getBoundingClientRect();
-    if (rect.width === 0) return; // panel not visible yet
-    canvas.width  = rect.width  * ratio;
+    const ratio = window.devicePixelRatio || 1;
+    const w = canvas.getBoundingClientRect().width || canvas.offsetWidth;
+    if (!w) return;
+    canvas.width  = w * ratio;
     canvas.height = 110 * ratio;
     canvas.getContext('2d').scale(ratio, ratio);
     if (sigPad) sigPad.clear();
