@@ -2258,10 +2258,23 @@ let _sbMode = false; // true = Supabase actif
 
 function initSupabase() {
     const cfg = window.SIBELEC_SUPABASE;
-    if (!cfg || !cfg.url || cfg.url === 'VOTRE_URL_ICI') return false;
+    if (!cfg || !cfg.url || cfg.url === 'VOTRE_URL_ICI') {
+        console.warn('[SIB.Elec] Supabase non configuré — mode local activé');
+        return false;
+    }
+    if (!cfg.key || cfg.key === 'VOTRE_CLE_ANON_ICI') {
+        console.error('[SIB.Elec] Clé anon manquante dans supabase-config.js');
+        alert('Configuration incomplète : ajoutez la clé anon dans supabase-config.js');
+        return false;
+    }
     try {
+        if (typeof window.supabase === 'undefined') {
+            console.error('[SIB.Elec] Bibliothèque Supabase non chargée');
+            return false;
+        }
         _sb = window.supabase.createClient(cfg.url, cfg.key);
         _sbMode = true;
+        console.log('[SIB.Elec] Supabase initialisé ✓ URL:', cfg.url.substring(0, 40));
         return true;
     } catch(e) { return false; }
 }
@@ -2383,8 +2396,8 @@ async function checkLogin() {
 
     if (_sbMode) {
         // Authentification Supabase
-        const email    = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
+        const email    = document.getElementById('login-email').value.trim().toLowerCase();
+        const password = document.getElementById('login-password').value.trim();
         if (!email || !password) { errEl.textContent = 'Email et mot de passe requis.'; return; }
 
         const btn = document.querySelector('.login-btn');
@@ -2396,7 +2409,9 @@ async function checkLogin() {
         btn.disabled  = false;
 
         if (error) {
-            errEl.textContent = 'Email ou mot de passe incorrect.';
+            // Afficher l'erreur précise de Supabase pour diagnostic
+            alert('Erreur Supabase : ' + error.message + '\n\nCode : ' + (error.status || 'N/A'));
+            errEl.textContent = error.message;
             document.getElementById('login-password').classList.add('error');
             setTimeout(() => document.getElementById('login-password').classList.remove('error'), 600);
             return;
