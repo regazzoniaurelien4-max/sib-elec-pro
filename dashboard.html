@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="SIB-logo.png" type="image/png">
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
         /* ============================================================
@@ -2442,8 +2442,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initComptaYears();
     const depDate = document.getElementById('dep-date');
     if (depDate) depDate.value = new Date().toISOString().slice(0, 10);
-    // SignaturePad — init avec délai pour que le canvas soit rendu
-    setTimeout(initSignaturePad, 300);
+    // SignaturePad initialisé après car son script est en defer
+    window.addEventListener('load', () => initSignaturePad());
 });
 
 /* ============================================================
@@ -2533,6 +2533,7 @@ async function checkLogin() {
         document.getElementById('login-overlay').style.display = 'none';
         setSyncBadge('online');
         syncFromSupabase();
+        setTimeout(resizeSigCanvas, 150);
 
     } else {
         // ── Mode local (code 4 chiffres) ──
@@ -2541,6 +2542,7 @@ async function checkLogin() {
         if (code === LOCAL_CODE) {
             sessionStorage.setItem('sibelec_auth', '1');
             document.getElementById('login-overlay').style.display = 'none';
+            setTimeout(resizeSigCanvas, 150);
         } else {
             const input = document.getElementById('login-code');
             input.classList.add('error');
