@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="SIB-logo.png" type="image/png">
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
         /* ============================================================
@@ -1216,6 +1216,7 @@
             background: #fafafa;
             position: relative;
             transition: border-color 0.2s;
+            touch-action: none;
         }
         .sig-pad-wrap:hover { border-color: #bbb; }
         .sig-pad-wrap canvas {
@@ -2441,8 +2442,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initComptaYears();
     const depDate = document.getElementById('dep-date');
     if (depDate) depDate.value = new Date().toISOString().slice(0, 10);
-    // SignaturePad initialisé après car son script est en defer
-    window.addEventListener('load', () => initSignaturePad());
+    // SignaturePad — init avec délai pour que le canvas soit rendu
+    setTimeout(initSignaturePad, 300);
 });
 
 /* ============================================================
@@ -2705,10 +2706,12 @@ function switchTab(name) {
     if (name === 'avis')       renderAvis();
     if (name === 'rappels')    renderRappels();
     if (name === 'compta')     renderCompta();
-    // Signature pad : init si pas encore fait, sinon resize
+    // Signature pad : init si pas encore fait, sinon resize (délai pour que le DOM soit prêt)
     if (name === 'devis') {
-        if (!sigPad) initSignaturePad();
-        else resizeSigCanvas();
+        setTimeout(() => {
+            if (!sigPad) initSignaturePad();
+            else resizeSigCanvas();
+        }, 80);
     }
     // Sync mobile bottom nav
     document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
