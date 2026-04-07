@@ -1,4 +1,4 @@
-const CACHE = 'sibelec-v1';
+const CACHE = 'sibelec-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -6,7 +6,9 @@ const ASSETS = [
   '/mentions-legales.html',
   '/politique-confidentialite.html',
   '/reviews.js',
-  '/SIB-logo.png',
+  '/LOGO.png',
+  '/lumier.PNG.jpg',
+  '/voiture.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'
 ];
@@ -31,7 +33,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
     caches.match(e.request).then(cached => {
-      if (cached) return cached;
+      // Toujours essayer le réseau d'abord, fallback sur le cache
       return fetch(e.request).then(resp => {
         if (resp && resp.status === 200 && resp.type === 'basic') {
           const clone = resp.clone();
