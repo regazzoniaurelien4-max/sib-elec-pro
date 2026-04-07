@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(node --input-type=module)",
-      "Bash(powershell -Command ':*)"
+      "Bash(powershell -Command ':*)",
+      "Bash(ls \"c:/Users/regaz/Desktop/david-renovation/\"*.png \"c:/Users/regaz/Desktop/david-renovation/\"*.jpg \"c:/Users/regaz/Desktop/david-renovation/\"*.jpeg \"c:/Users/regaz/Desktop/david-renovation/\"*.webp)"
     ]
   }
 }
