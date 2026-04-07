@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="icon" href="SIB-logo.png" type="image/png">
+    <link rel="icon" href="LOGO.png" type="image/png">
     <!-- signature_pad remplacé par implémentation native canvas -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
@@ -1415,7 +1415,7 @@
 ============================================================ -->
 <div class="login-overlay" id="login-overlay">
     <div class="login-box">
-        <img src="SIB-logo.png" alt="SIB.Elec" class="login-logo">
+        <img src="LOGO.png" alt="SIB.Elec" class="login-logo">
         <div class="login-title">Espace privé SIB.Elec</div>
         <div class="login-sub">Connexion sécurisée — Accès réservé à David SIBOUT</div>
 
@@ -1456,7 +1456,7 @@
 ============================================================ -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <img src="SIB-logo.png" alt="SIB.Elec" style="width:100%;max-width:170px;border-radius:8px;display:block;margin-bottom:0.75rem;">
+        <img src="LOGO.png" alt="SIB.Elec" style="width:100%;max-width:170px;border-radius:8px;display:block;margin-bottom:0.75rem;">
         <span class="priv-badge"><i class="fa-solid fa-lock"></i> Espace privé</span>
     </div>
 
@@ -4022,7 +4022,7 @@ async function generatePDF() {
     let logoHTML = `<div style="font-size:20pt;font-weight:900;color:#111;letter-spacing:-1pt;">SIB<span style="color:#d41f1f;">.</span>Elec</div>
                     <div style="font-size:7pt;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin-top:3pt;">Artisan multi-métiers du bâtiment</div>`;
     try {
-        const resp = await fetch('SIB-logo.png');
+        const resp = await fetch('LOGO.png');
         if (resp.ok) {
             const blob = await resp.blob();
             const b64  = await new Promise(resolve => {
